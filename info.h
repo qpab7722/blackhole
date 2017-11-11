@@ -41,7 +41,7 @@ char MeteoInfo[][4][4] = {
 };
 
 
-char PCinfo[][4][4] =
+char PCInfo[][4][4] =
 {
 	{
 
