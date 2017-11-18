@@ -156,10 +156,8 @@ void DrawOb(char GBinfo_N[29][25]) {
 			if (Switch_N)
 			{
 				SetCurrentCursorPos((y * 2), x);
-
 			}
 			else
-
 				SetCurrentCursorPos((x * 2), y);
 
 			if (GBinfo_N[y][x] == 1)
@@ -244,16 +242,18 @@ int isCrash(int posX, int posY, char PCInfo[4][4], char GBInfo_N[29][25], char M
 	int x, y;
 	int arrX = (posX) / 2;
 	int arrY = posY;
+
 	if (Switch_N)
 	{
-		arrX = posY + 1;
-		arrY = posX / 2 - 1;
+		arrX = posY +1;
+		arrY = posX / 2 -1 ;
 	}
 	for (x = 0; x<4; x++)
 	{
 		for (y = 0; y<4; y++)
 		{
-			if (PCInfo[y][x] == 1)
+			///ÀÏ¹Ý¸Ê
+			if (PCInfo[y][x] == 1 && Switch_N == false)	
 			{
 
 				if (GBInfo_N[arrY + y][arrX + x] == 1)	//º®ÀÌ¶û ºÎµúÇûÀ»¶§
@@ -264,7 +264,7 @@ int isCrash(int posX, int posY, char PCInfo[4][4], char GBInfo_N[29][25], char M
 					attacked = true;
 					return 0;
 				}
-				if (!Switch_N && GBInfo_N[arrY + y][arrX + x] == 3)
+				if (GBInfo_N[arrY + y][arrX + x] == 3)	//ÀÏ¹Ý¸Ê ½ºÀ§Ä¡
 				{
 					Switch_N = true;
 					deletePC(PCInfo);
@@ -273,15 +273,48 @@ int isCrash(int posX, int posY, char PCInfo[4][4], char GBInfo_N[29][25], char M
 					MT_pos.Y = 3;
 					return 0;
 				}
-				
-				//¸ÞÅ×¿À À§Ä¡ ³Ö±â
-				if ((PC_pos.X == MT_pos.X) && (PC_pos.Y + 4 == MT_pos.Y))	//¿î¼® Ãæµ¹ (¼­·Î ¶Õ°í Áö³ª°¨)
+
+				if ((PC_pos.X == MT_pos.X) && (PC_pos.Y + 3 == MT_pos.Y))	//¿î¼® Ãæµ¹ (¼­·Î ¶Õ°í Áö³ª°¨)
 				{
 					attacked = true;
 					return 0;
 				}
-				
+
 			}
+
+			///ÀüÈ¯¸Ê
+			if (PCInfo[x][y] == 1 && Switch_N == true)
+			{
+				if (GBInfo_N[arrY + y +1][arrX + x -1] == 1)	//º®ÀÌ¶û ºÎµúÇûÀ»¶§
+					return 0;
+
+				if (GBInfo_N[arrY + y +1][arrX + x -1] == 2)	//Àå¾Ö¹°ÀÌ¶û ºÎµúÇûÀ»¶§
+				{
+					attacked = true;
+					return 0;
+				}
+
+				//if (GBInfo_N[arrY + y][arrX + x] == 3)	//ÀüÈ¯¸Ê ½ºÀ§Ä¡
+				//{
+				//	Switch_N = true;
+				//	deletePC(PCInfo);
+				//	PC_pos.Y = 13;
+				//	MT_pos.X = 28;
+				//	MT_pos.Y = 3;
+				//	return 0;
+				//}
+
+				if ((PC_pos.X == MT_pos.X) && (PC_pos.Y + 3 == MT_pos.Y))	//¿î¼® Ãæµ¹ (¼­·Î ¶Õ°í Áö³ª°¨)
+				{
+					attacked = true;
+					return 0;
+				}
+
+			}
+
+
+
+
 		}
 	}
 	return 1;
@@ -405,7 +438,16 @@ int main(void)
 		ProcessKeyInput();
 
 		SetCurrentCursorPos(60, 0);
+		printf("                ");
+		SetCurrentCursorPos(60, 1);
 		printf("PC Ã¼·Â: %3d", Physical(PCLife));
+
+		SetCurrentCursorPos(60, 3);
+		printf("PC ÁÂÇ¥: %3d,%3d", PC_pos.X, PC_pos.Y);
+		SetCurrentCursorPos(60, 4);
+		printf("MT ÁÂÇ¥: %3d,%3d", MT_pos.X, MT_pos.Y);
+
+
 		SetCurrentCursorPos(MT_pos.X, MT_pos.Y);
 
 		if (DrawMeteo() == 0) {
