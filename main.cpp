@@ -9,20 +9,26 @@
 #define LEFT 75
 #define RIGHT 77
 #define SPACE 32
-/*
-#define bool int
-#define true 1
-#define false 0
-*/
+
+#define GBOARD_HEIGHT  29
+#define GBOARD_WIDTH  25
+
 
 COORD PC_pos = { 10,0 };
+COORD MT_pos = { 0,0 };
 int curPosX;
 int curPosY;
 int speed = 30;
-int MT_posX;
-int MT_posY;
+int check = 0; // ½ºÀ§Ä¡ÈÄ delete
+
 int PCLife = 30;	//PCÀÇ Ã¼·Â
 bool attacked = false;	//°ø°Ý¹Þ¾Ò´ÂÁö ¾Ë·ÁÁÖ´Â ÇÔ¼ö
+bool Switch_N = false; //½ºÀ§Ä¡ Ãæµ¹ ¾Ë·ÁÁÖ´Â ÇÔ¼ö
+
+int GBInfo_N[GBOARD_HEIGHT][GBOARD_WIDTH];
+int ObTime;	//µ¹ÃâµÈ ÁöÇü ¸¸µé¾îÁö´Â XÁÂÇ¥
+int Check_Ob = 0;	//¿Ã¶ó°¡´Â °£°Ý	(Àå¾Ö¹°°ú Àå¾Ö¹°»çÀÌ °£°Ý)
+int Ran;	//µ¹ÃâµÈ ÁöÇü ±æÀÌ
 
 void RemoveCursor(void)
 {
@@ -48,7 +54,7 @@ void SetCurrentCursorPos(int x, int y)
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 }
 
-int DetectCollision(int posX, int posY, char MeteoInfo[4][4], char ObInfo[25][25])
+int DetectCollision(int posX, int posY, char MeteoInfo[4][4])	//¸Ê ·£´ýÀ¸·Î ³ª¿À¸é ¼Õ ºÁ¾ß ÇÒµí
 {
 	int x, y;
 	int arrX = posX / 2;
@@ -58,7 +64,7 @@ int DetectCollision(int posX, int posY, char MeteoInfo[4][4], char ObInfo[25][25
 		for (y = 0; y < 4; y++) {
 			if (MeteoInfo[y][x] == 1 || MeteoInfo[y][x] == 2)
 			{
-				if (ObInfo[arrY + y + 1][arrX + (x * 2)] == 1 || ObInfo[arrY + y + 1][arrX + (x * 2)] == 2)
+				if (GBInfo_N[arrY + y + 1][arrX + (x * 2)] == 1 || GBInfo_N[arrY + y + 1][arrX + (x * 2)] == 2)
 					return 0;
 			}
 
@@ -100,20 +106,93 @@ void DeleteMT(char MeteoInfo[4][4])
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
 
-void DrawOb(char ObInfo[25][25]) {
+void DeleteOb(char GBInfo_N[29][25])
+{
 	int x, y;
-
-	for (y = 0; y<25; y++)
+	COORD curPos = GetCurrentCursorPos();
+	for (y = 0; y<29; y++)
 	{
 		for (x = 0; x<25; x++)
 		{
 			SetCurrentCursorPos((x * 2), y);
-			if (ObInfo[y][x] == 1)
-				printf("¡à");
-			if (ObInfo[y][x] == 2)
-				printf("¡â");
+			if (GBInfo_N[y][x] != 0)
+				printf(" ");
 		}
 	}
+	SetCurrentCursorPos(curPos.X, curPos.Y);
+}
+//PC¸¦ Áö¿ì´Â ÇÔ¼ö
+void deletePC(char PCInfo[4][4])
+{
+	int x, y;
+	COORD curPos = GetCurrentCursorPos();
+	for (y = 0; y<4; y++)
+	{
+		for (x = 0; x<4; x++)
+		{
+			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
+
+			if (PCInfo[y][x] == 1)
+				printf(" ");
+		}
+	}
+	SetCurrentCursorPos(curPos.X, curPos.Y);
+}
+
+void DrawOb()	//µ¹Ãâ ÁöÇüÀ» ±×¸®´Â ÇÔ¼ö
+{
+	int x, y;
+
+	if (Switch_N)
+	{
+		if (check == 0)
+		{
+			//DeleteOb(GBInfo_N[0]);
+		}
+		check++;
+	}
+
+	for (y = 0; y<29; y++)
+	{
+		for (x = 0; x<25; x++)
+		{
+			if (Switch_N)
+			{
+				SetCurrentCursorPos((y * 2), x);
+			}
+			else
+				SetCurrentCursorPos((x * 2), y);
+
+			if (GBInfo_N[y][x] == 1)
+				printf("¡á");
+			//if (GBInfo_N[y][x] == 2)
+			//	printf("¡ã");
+			//if (GBInfo_N[y][x] == 3)
+			//	printf("¡Ú");
+			else
+				printf("¡¡");
+
+		}
+	}
+}
+
+void UpOB()	//µ¹Ãâ ÁöÇüÀ» ÀÏÁ¤ °£°Ý¸¶´Ù À§·Î ¿Ã·ÁÁÖ´Â ÇÔ¼ö 
+{
+	int line, x, y;
+	for (y = 0; y < GBOARD_HEIGHT; y++)
+	{
+		memcpy(&GBInfo_N[y][1], &GBInfo_N[y + 1][1], GBOARD_WIDTH * sizeof(int));//³»ÀåÇÔ¼ö,º¹»çÇÒ ‹š ¸¹ÀÌµé »ç¿ë
+	}
+}
+
+void MakeOb()	//µ¹Ãâ ÁöÇüÀ» GBInfo_N¿¡ »ý¼ºÇØÁÖ´Â ÇÔ¼ö 
+{
+	srand((unsigned int)time(NULL));
+	ObTime = (rand() % 6) * 2;
+	Ran = (rand() % 8) * 2;
+
+	for (int x = ObTime; x < ObTime + Ran; x++)
+		GBInfo_N[28][x] = 1;
 }
 
 int DrawMeteo()
@@ -123,18 +202,19 @@ int DrawMeteo()
 	DeleteMT(MeteoInfo[0]);
 
 	if (curPos.Y == 1) {
-		DrawOb(ObInfo[0]);
+
 		return 0;
 	}
-	if (DetectCollision(curPos.X, curPos.Y + 1, MeteoInfo[0], ObInfo[0]) == 0)
+	if (DetectCollision(curPos.X, curPos.Y + 1, MeteoInfo[0]) == 0)
 	{
-		DrawOb(ObInfo[0]);
+		//DeleteOb(GBInfo_N[0]);
+		DrawOb();
 	}
 
-	MT_posY -= 1;
-	SetCurrentCursorPos(MT_posX, MT_posY);
+	MT_pos.Y -= 1;
+	SetCurrentCursorPos(MT_pos.X, MT_pos.Y);
 	ShowMT(MeteoInfo[0]);
-	Sleep(200);
+	Sleep(50);
 	return 1;
 }
 
@@ -146,7 +226,8 @@ int Physical(int maxLife)	//Ã¼·ÂÇÔ¼ö(Ä³¸¯ÅÍÀÇ ÃÖ´ë Ã¼·ÂÀ» ¹Þ¾Æ¼­ ÇöÀç Ã¼·ÂÀ» ¸®Å
 	{
 		SetCurrentCursorPos(20, curPosY);
 		printf("Game Over!\n");
-		Sleep(100);
+		Sleep(50);
+		getchar();
 		exit(0);
 	}
 
@@ -159,7 +240,7 @@ int Physical(int maxLife)	//Ã¼·ÂÇÔ¼ö(Ä³¸¯ÅÍÀÇ ÃÖ´ë Ã¼·ÂÀ» ¹Þ¾Æ¼­ ÇöÀç Ã¼·ÂÀ» ¸®Å
 }
 
 //PC¸¦ ±×¸®´Â ÇÔ¼ö
-void drawPC(char PClnfo[4][4])
+void drawPC(char PCInfo[4][4])
 {
 	int x, y;
 	COORD curPos = GetCurrentCursorPos();
@@ -169,7 +250,7 @@ void drawPC(char PClnfo[4][4])
 		{
 			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
 
-			if (PClnfo[y][x] == 1)
+			if (PCInfo[y][x] == 1)
 			{
 				if (y == 1) printf("¡Ý");
 				if (y == 2)	printf("¡â");
@@ -179,44 +260,83 @@ void drawPC(char PClnfo[4][4])
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
 
-//PC¸¦ Áö¿ì´Â ÇÔ¼ö
-void deletePC(char PClnfo[4][4])
-{
-	int x, y;
-	COORD curPos = GetCurrentCursorPos();
-	for (y = 0; y<4; y++)
-	{
-		for (x = 0; x<4; x++)
-		{
-			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
 
-			if (PClnfo[y][x] == 1)
-				printf(" ");
-		}
-	}
-	SetCurrentCursorPos(curPos.X, curPos.Y);
-}
 
-int isCrash(int posX, int posY, char PCInfo[4][4], char ObInfo[25][25])	//Ãæµ¹ ÇÔ¼ö
+int isCrash(int posX, int posY, char PCInfo[4][4])	//Ãæµ¹ ÇÔ¼ö
 {
 	int x, y;
 	int arrX = (posX) / 2;
 	int arrY = posY;
+
+	if (Switch_N)
+	{
+		arrX = posY + 1;
+		arrY = posX / 2 - 1;
+	}
 	for (x = 0; x<4; x++)
 	{
 		for (y = 0; y<4; y++)
 		{
-			if (PCInfo[y][x] == 1)
+			///ÀÏ¹Ý¸Ê
+			if (PCInfo[y][x] == 1 && Switch_N == false)
 			{
-				if (ObInfo[arrY + y][arrX + x] == 1)	//º®ÀÌ¶û ºÎµúÇûÀ»¶§
+
+				if (GBInfo_N[arrY + y][arrX + x] == 1)	//º®ÀÌ¶û ºÎµúÇûÀ»¶§
 					return 0;
 
-				if (ObInfo[arrY + y][arrX + x] == 2)	//Àå¾Ö¹°ÀÌ¶û ºÎµúÇûÀ»¶§
+				if (GBInfo_N[arrY + y][arrX + x] == 2)	//Àå¾Ö¹°ÀÌ¶û ºÎµúÇûÀ»¶§
 				{
 					attacked = true;
 					return 0;
 				}
+				if (GBInfo_N[arrY + y][arrX + x] == 3)	//ÀÏ¹Ý¸Ê ½ºÀ§Ä¡
+				{
+					Switch_N = true;
+					deletePC(PCInfo);
+					PC_pos.Y = 13;
+					MT_pos.X = 28;
+					MT_pos.Y = 3;
+					return 0;
+				}
+
+				if ((PC_pos.X == MT_pos.X) && (PC_pos.Y + 3 == MT_pos.Y))	//¿î¼® Ãæµ¹ (¼­·Î ¶Õ°í Áö³ª°¨)
+				{
+					attacked = true;
+					return 0;
+				}
+
 			}
+
+			///ÀüÈ¯¸Ê
+			if (PCInfo[x][y] == 1 && Switch_N == true)
+			{
+				if (GBInfo_N[arrY + y + 1][arrX + x - 1] == 1)	//º®ÀÌ¶û ºÎµúÇûÀ»¶§
+					return 0;
+
+				if (GBInfo_N[arrY + y + 1][arrX + x - 1] == 2)	//Àå¾Ö¹°ÀÌ¶û ºÎµúÇûÀ»¶§
+				{
+					attacked = true;
+					return 0;
+				}
+
+				//if (GBInfo_N[arrY + y][arrX + x] == 3)	//ÀüÈ¯¸Ê ½ºÀ§Ä¡
+				//{
+				//	Switch_N = true;
+				//	deletePC(PCInfo);
+				//	PC_pos.Y = 13;
+				//	MT_pos.X = 28;
+				//	MT_pos.Y = 3;
+				//	return 0;
+				//}
+
+				if ((PC_pos.X == MT_pos.X) && (PC_pos.Y + 3 == MT_pos.Y))	//¿î¼® Ãæµ¹ (¼­·Î ¶Õ°í Áö³ª°¨)
+				{
+					attacked = true;
+					return 0;
+				}
+
+			}
+
 		}
 	}
 	return 1;
@@ -224,10 +344,11 @@ int isCrash(int posX, int posY, char PCInfo[4][4], char ObInfo[25][25])	//Ãæµ¹ Ç
 
 int ShiftRight()
 {
-	if (isCrash(curPosX + 2, curPosY, PCInfo[0], ObInfo[0]) == 0)
+	if (isCrash(PC_pos.X + 2, PC_pos.Y, PCInfo[0]) == 0 )
 		return 0;
 	deletePC(PCInfo[0]);
-	DrawOb(ObInfo[0]);
+	//DeleteOb(GBInfo_N[0]);
+	DrawOb();
 	PC_pos.X += 2;
 	SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
 	drawPC(PCInfo[0]);
@@ -237,10 +358,11 @@ int ShiftRight()
 }
 int ShiftLeft()
 {
-	if (isCrash(curPosX - 2, curPosY, PCInfo[0], ObInfo[0]) == 0)
+	if (isCrash(PC_pos.X - 2, PC_pos.Y, PCInfo[0]) == 0 )
 		return 0;
 	deletePC(PCInfo[0]);
-	DrawOb(ObInfo[0]);
+	//DeleteOb(GBInfo_N[0]);
+	DrawOb();
 	PC_pos.X -= 2;
 	SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
 	drawPC(PCInfo[0]);
@@ -250,10 +372,11 @@ int ShiftLeft()
 
 int Jump()
 {
-	if (isCrash(curPosX , curPosY - 1, PCInfo[0], ObInfo[0]) == 0)
+	if (isCrash(PC_pos.X, PC_pos.Y - 1, PCInfo[0]) == 0 || PC_pos.Y == 0)
 		return 0;
 	deletePC(PCInfo[0]);
-	DrawOb(ObInfo[0]);
+	//DeleteOb(GBInfo_N[0]);
+	DrawOb();
 	PC_pos.Y -= 1;
 	SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
 	drawPC(PCInfo[0]);
@@ -265,24 +388,26 @@ int Jump()
 int Gravity_N()
 {
 	//ÂªÀº °£°ÝÀ¸·Î ÇÑÄ­¾¿ ³»·Á¼­ µÎÄ­ ³»¸°´Ù
-	if (isCrash(curPosX, curPosY + 1, PCInfo[0], ObInfo[0]) == 0)
+	if (isCrash(PC_pos.X, PC_pos.Y + 2, PCInfo[0]) == 0)
 		return 0;
 	deletePC(PCInfo[0]);
-	DrawOb(ObInfo[0]);
+	//DeleteOb(GBInfo_N[0]);
+	DrawOb();
+	PC_pos.Y += 1;
+	SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
+	drawPC(PCInfo[0]);
+	Sleep(50);
+
+	/*
+	if (isCrash(curPosX, curPosY + 1, PCInfo[0], GBInfo_N[0]) == 0)
+	return 0;
+	deletePC(PCInfo[0]);
+	DrawOb(GBInfo_N[0]);
 	PC_pos.Y += 1;
 	SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
 	drawPC(PCInfo[0]);
 	Sleep(25);
-
-	if (isCrash(curPosX, curPosY + 1, PCInfo[0], ObInfo[0]) == 0)
-		return 0;
-	deletePC(PCInfo[0]);
-	DrawOb(ObInfo[0]);
-	PC_pos.Y += 1;
-	SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
-	drawPC(PCInfo[0]);
-	Sleep(25);
-
+	*/
 	return 1;
 }
 
@@ -290,7 +415,7 @@ void ProcessKeyInput()
 {
 	int key;
 
-	for (int i = 0;i<20;i++)
+	for (int i = 0; i<20; i++)
 	{
 		if (_kbhit() != 0)
 		{
@@ -306,6 +431,9 @@ void ProcessKeyInput()
 			case SPACE:
 				Jump();
 				break;
+			case '1':	//Ãß°¡
+				Switch_N = true;
+				break;
 			}
 		}
 		Sleep(speed);
@@ -315,16 +443,24 @@ void ProcessKeyInput()
 
 int main(void)
 {
+	for (int x = 0; x < GBOARD_WIDTH; x++)
+		GBInfo_N[28][x] = 1;
 
 	RemoveCursor();
-	DrawOb(ObInfo[0]);
+	//DeleteOb(GBInfo_N[0]);
+	DrawOb();
 
-	MT_posY = 25;
+	MT_pos.Y = 25;
 	srand((unsigned int)time(NULL));
-	MT_posX = (rand() % 10) + 10;
+	MT_pos.X = (rand() % 5) * 2 + 10;
 
 	while (1)
 	{
+		UpOB();
+		Sleep(50);
+		DrawOb();
+		Check_Ob++;
+
 		curPosX = PC_pos.X;
 		curPosY = PC_pos.Y;
 		SetCurrentCursorPos(curPosX, curPosY);
@@ -333,20 +469,22 @@ int main(void)
 		Gravity_N();
 		ProcessKeyInput();
 
-	//	SetCurrentCursorPos(60, 0 );
-	//	printf("                 ");	//À­ÁÙ¿¡ ³ª¿Â°Å Áö¿öÁÖ·Á°í
-		SetCurrentCursorPos(60, 0);
+		SetCurrentCursorPos(60, 1);
 		printf("PC Ã¼·Â: %3d", Physical(PCLife));
-		
-		SetCurrentCursorPos(MT_posX, MT_posY);
+		SetCurrentCursorPos(60, 3);
+		printf("%d", PC_pos.Y);
+
+		SetCurrentCursorPos(MT_pos.X, MT_pos.Y);
 
 		if (DrawMeteo() == 0) {
 			getchar;
 			srand((unsigned int)time(NULL));
-			MT_posX = (rand() % 10) + 10;
-			SetCurrentCursorPos(MT_posX, 25);
-
+			MT_pos.X = (rand() % 5) * 2 + 10;
+			MT_pos.Y = 25;
 		}
+
+		if (Check_Ob % 6 == 0)
+			MakeOb();
 	}
 
 	getchar();
