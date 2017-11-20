@@ -106,7 +106,7 @@ void DeleteMT(char MeteoInfo[4][4])
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
 
-void DeleteOb(char GBInfo_N[29][25])
+void DeleteOb()
 {
 	int x, y;
 	COORD curPos = GetCurrentCursorPos();
@@ -121,6 +121,7 @@ void DeleteOb(char GBInfo_N[29][25])
 	}
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
+
 //PC를 지우는 함수
 void deletePC(char PCInfo[4][4])
 {
@@ -147,7 +148,7 @@ void DrawOb()	//돌출 지형을 그리는 함수
 	{
 		if (check == 0)
 		{
-			//DeleteOb(GBInfo_N[0]);
+			DeleteOb();
 		}
 		check++;
 	}
@@ -165,10 +166,10 @@ void DrawOb()	//돌출 지형을 그리는 함수
 
 			if (GBInfo_N[y][x] == 1)
 				printf("■");
-			//if (GBInfo_N[y][x] == 2)
-			//	printf("▲");
-			//if (GBInfo_N[y][x] == 3)
-			//	printf("★");
+			if (GBInfo_N[y][x] == 2)
+				printf("▲");
+			if (GBInfo_N[y][x] == 3)
+				printf("★");
 			else
 				printf("　");
 
@@ -345,10 +346,15 @@ int isCrash(int posX, int posY, char PCInfo[4][4])	//충돌 함수
 int ShiftRight()
 {
 	if (isCrash(PC_pos.X + 2, PC_pos.Y, PCInfo[0]) == 0 )
+	{
+		if(Switch_N ==true)
+		{
+			PC_pos.X -= 2;
+			Sleep(50);
+		}
 		return 0;
+	}
 	deletePC(PCInfo[0]);
-	//DeleteOb(GBInfo_N[0]);
-	DrawOb();
 	PC_pos.X += 2;
 	SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
 	drawPC(PCInfo[0]);
@@ -361,8 +367,6 @@ int ShiftLeft()
 	if (isCrash(PC_pos.X - 2, PC_pos.Y, PCInfo[0]) == 0 )
 		return 0;
 	deletePC(PCInfo[0]);
-	//DeleteOb(GBInfo_N[0]);
-	DrawOb();
 	PC_pos.X -= 2;
 	SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
 	drawPC(PCInfo[0]);
@@ -375,8 +379,6 @@ int Jump()
 	if (isCrash(PC_pos.X, PC_pos.Y - 1, PCInfo[0]) == 0 || PC_pos.Y == 0)
 		return 0;
 	deletePC(PCInfo[0]);
-	//DeleteOb(GBInfo_N[0]);
-	DrawOb();
 	PC_pos.Y -= 1;
 	SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
 	drawPC(PCInfo[0]);
@@ -388,11 +390,24 @@ int Jump()
 int Gravity_N()
 {
 	//짧은 간격으로 한칸씩 내려서 두칸 내린다
-	if (isCrash(PC_pos.X, PC_pos.Y + 2, PCInfo[0]) == 0)
+	if (isCrash(PC_pos.X, PC_pos.Y + 1, PCInfo[0]) == 0 && Switch_N ==false)
+	{	
+		PC_pos.Y -= 1;
 		return 0;
+	}
+
+		if(isCrash(PC_pos.X +2, PC_pos.Y + 1, PCInfo[0]) == 0 && Switch_N ==true)
+		{
+			PC_pos.X -= 2;
+			PC_pos.Y += 1;
+			return 0;
+		}
+
+		
+
+		
+	
 	deletePC(PCInfo[0]);
-	//DeleteOb(GBInfo_N[0]);
-	DrawOb();
 	PC_pos.Y += 1;
 	SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
 	drawPC(PCInfo[0]);
@@ -443,9 +458,7 @@ void ProcessKeyInput()
 
 int main(void)
 {
-	for (int x = 0; x < GBOARD_WIDTH; x++)
-		GBInfo_N[28][x] = 1;
-
+	
 	RemoveCursor();
 	//DeleteOb(GBInfo_N[0]);
 	DrawOb();
@@ -456,6 +469,12 @@ int main(void)
 
 	while (1)
 	{
+		for (int y = 0; y < GBOARD_HEIGHT; y++)
+		{
+		GBInfo_N[y][0] = 1;
+		GBInfo_N[y][GBOARD_WIDTH-1] = 1;
+		}
+
 		UpOB();
 		Sleep(50);
 		DrawOb();
@@ -465,14 +484,12 @@ int main(void)
 		curPosY = PC_pos.Y;
 		SetCurrentCursorPos(curPosX, curPosY);
 		drawPC(PCInfo[0]);
-
+		
 		Gravity_N();
 		ProcessKeyInput();
 
 		SetCurrentCursorPos(60, 1);
 		printf("PC 체력: %3d", Physical(PCLife));
-		SetCurrentCursorPos(60, 3);
-		printf("%d", PC_pos.Y);
 
 		SetCurrentCursorPos(MT_pos.X, MT_pos.Y);
 
@@ -485,6 +502,11 @@ int main(void)
 
 		if (Check_Ob % 6 == 0)
 			MakeOb();
+
+		if(Check_Ob == 10)
+		{
+			GBInfo_N[10][3] = 3;
+		}
 	}
 
 	getchar();
