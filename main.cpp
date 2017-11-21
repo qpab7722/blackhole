@@ -300,10 +300,10 @@ int isCrash(int posX, int posY, char PCInfo[4][4])	//충돌 함수
 					return 0;
 				}
 
-				if ((PC_pos.X == MT_pos.X) && (PC_pos.Y + 3 == MT_pos.Y))	//운석 충돌 (서로 뚫고 지나감)
+				if ((PC_pos.X == MT_pos.X) && ((PC_pos.Y + 3 == MT_pos.Y) || (PC_pos.Y + 2 == MT_pos.Y) || (PC_pos.Y + 1 == MT_pos.Y)))	//운석 충돌 (서로 뚫고 지나감)
 				{
 					attacked = true;
-					return 0;
+					
 				}
 
 			}
@@ -330,7 +330,7 @@ int isCrash(int posX, int posY, char PCInfo[4][4])	//충돌 함수
 				//	return 0;
 				//}
 
-				if ((PC_pos.X == MT_pos.X) && (PC_pos.Y + 3 == MT_pos.Y))	//운석 충돌 (서로 뚫고 지나감)
+				if ((PC_pos.X == MT_pos.X) && ((PC_pos.Y + 3 == MT_pos.Y) || (PC_pos.Y + 2 == MT_pos.Y) || (PC_pos.Y + 1 == MT_pos.Y)))	//운석 충돌 (서로 뚫고 지나감)
 				{
 					attacked = true;
 					return 0;
@@ -345,9 +345,9 @@ int isCrash(int posX, int posY, char PCInfo[4][4])	//충돌 함수
 
 int ShiftRight()
 {
-	if (isCrash(PC_pos.X + 2, PC_pos.Y, PCInfo[0]) == 0 )
+	if (isCrash(PC_pos.X + 2, PC_pos.Y, PCInfo[0]) == 0)
 	{
-		if(Switch_N ==true)
+		if (Switch_N == true)
 		{
 			PC_pos.X -= 2;
 			Sleep(50);
@@ -364,7 +364,7 @@ int ShiftRight()
 }
 int ShiftLeft()
 {
-	if (isCrash(PC_pos.X - 2, PC_pos.Y, PCInfo[0]) == 0 )
+	if (isCrash(PC_pos.X - 2, PC_pos.Y, PCInfo[0]) == 0)
 		return 0;
 	deletePC(PCInfo[0]);
 	PC_pos.X -= 2;
@@ -389,24 +389,22 @@ int Jump()
 
 int Gravity_N()
 {
-	//짧은 간격으로 한칸씩 내려서 두칸 내린다
-	if (isCrash(PC_pos.X, PC_pos.Y + 1, PCInfo[0]) == 0 && Switch_N ==false)
-	{	
+	if (isCrash(PC_pos.X, PC_pos.Y + 1, PCInfo[0]) == 0 && Switch_N == false)	//일반맵 올라오는 벽
+	{
 		PC_pos.Y -= 1;
 		return 0;
 	}
 
-		if(isCrash(PC_pos.X +2, PC_pos.Y + 1, PCInfo[0]) == 0 && Switch_N ==true)
-		{
-			PC_pos.X -= 2;
-			PC_pos.Y += 1;
-			return 0;
-		}
-
-		
-
-		
+	if (isCrash(PC_pos.X , PC_pos.Y + 1, PCInfo[0]) == 0 && Switch_N == true)	//전환맵 아래 벽
+		return 0;
 	
+	else if (isCrash(PC_pos.X + 2, PC_pos.Y + 1, PCInfo[0]) == 0 && Switch_N == true)	//전환맵 옆으로 다가오는 벽
+	{
+		PC_pos.X -= 2;
+		PC_pos.Y += 1;
+		return 0;
+	}
+
 	deletePC(PCInfo[0]);
 	PC_pos.Y += 1;
 	SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
@@ -458,7 +456,7 @@ void ProcessKeyInput()
 
 int main(void)
 {
-	
+
 	RemoveCursor();
 	//DeleteOb(GBInfo_N[0]);
 	DrawOb();
@@ -471,8 +469,8 @@ int main(void)
 	{
 		for (int y = 0; y < GBOARD_HEIGHT; y++)
 		{
-		GBInfo_N[y][0] = 1;
-		GBInfo_N[y][GBOARD_WIDTH-1] = 1;
+			GBInfo_N[y][0] = 1;
+			GBInfo_N[y][GBOARD_WIDTH - 1] = 1;
 		}
 
 		UpOB();
@@ -484,7 +482,7 @@ int main(void)
 		curPosY = PC_pos.Y;
 		SetCurrentCursorPos(curPosX, curPosY);
 		drawPC(PCInfo[0]);
-		
+
 		Gravity_N();
 		ProcessKeyInput();
 
@@ -503,7 +501,7 @@ int main(void)
 		if (Check_Ob % 6 == 0)
 			MakeOb();
 
-		if(Check_Ob == 10)
+		if (Check_Ob == 10)
 		{
 			GBInfo_N[10][3] = 3;
 		}
