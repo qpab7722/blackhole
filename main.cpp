@@ -12,12 +12,12 @@
 
 #define GBOARD_HEIGHT  29
 #define GBOARD_WIDTH  25
-
+//BOSS MAP length
+#define B_GBOARD_HEIGHT  30
+#define B_GBOARD_WIDTH  30
 
 COORD PC_pos = { 10,0 };
 COORD MT_pos = { 0,0 };
-int curPosX;
-int curPosY;
 int speed = 30;
 int check = 0; // 스위치후 delete
 
@@ -29,6 +29,8 @@ int GBInfo_N[GBOARD_HEIGHT][GBOARD_WIDTH];
 int ObTime;	//돌출된 지형 만들어지는 X좌표
 int Check_Ob = 0;	//올라가는 간격	(장애물과 장애물사이 간격)
 int Ran;	//돌출된 지형 길이
+bool B_OK=true;//보스맵 전환 신호(임시)
+
 
 void RemoveCursor(void)
 {
@@ -122,6 +124,27 @@ void DeleteOb()
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
 
+//PC를 그리는 함수
+void drawPC(char PCInfo[4][4])
+{
+	int x, y;
+	COORD curPos = GetCurrentCursorPos();
+	for (y = 0; y<4; y++)
+	{
+		for (x = 0; x<4; x++)
+		{
+			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
+
+			if (PCInfo[y][x] == 1)
+			{
+				if (y == 1) printf("◎");
+				if (y == 2)	printf("△");
+			}
+		}
+	}
+	SetCurrentCursorPos(curPos.X, curPos.Y);
+}
+
 //PC를 지우는 함수
 void deletePC(char PCInfo[4][4])
 {
@@ -140,10 +163,86 @@ void deletePC(char PCInfo[4][4])
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
 
+//반사경을 그리는 함수
+void drawMirr(char MirrInfo[4][4])
+{
+	int x, y;
+	COORD curPos = GetCurrentCursorPos();
+	for (y = 0; y<4; y++)	
+		for (x = 0; x<4; x++)
+		{
+			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
+
+			if (MirrInfo[y][x] == '1')			
+			  printf("dddd");			
+		}
+	
+	SetCurrentCursorPos(curPos.X, curPos.Y);
+}
+// 반사경을 지우는 함수
+void deleteMirr(char MirrInfo[4][4])
+{
+	int x, y;
+	COORD curPos = GetCurrentCursorPos();
+	for (y = 0; y<4; y++)
+		for (x = 0; x<4; x++)
+		{
+			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
+
+			if (MirrInfo[y][x] == 'm')
+				printf(" ");
+		}
+
+	SetCurrentCursorPos(curPos.X, curPos.Y);
+}
+
+//보스맵 을 그리는 함수
+void drawGB_B(char GBInfo_B[30][30])
+{
+	int x, y;
+	COORD curPos = GetCurrentCursorPos();
+
+	for (y = 0;y<B_GBOARD_HEIGHT;y++)
+		for (x = 0;x < B_GBOARD_WIDTH;x++)
+		{
+			if (GBInfo_B[y][x] == 1)
+			{
+				SetCurrentCursorPos((x * 2), y);
+
+				if (y == 0) //위벽
+				{
+					drawMirr(MirrInfo[0]);
+					if (x == 0) { printf("┌"); continue; }
+					if (x == B_GBOARD_WIDTH - 1) { printf("┐"); continue; }
+					printf("─");
+				}
+				if (y == B_GBOARD_HEIGHT - 1)//아래벽
+				{
+					drawMirr(MirrInfo[2]);
+					if (x == 0) { printf("└"); continue; }
+					if (x == B_GBOARD_WIDTH - 1) { printf("┘"); continue; }
+					printf("─");
+				}
+				if (x == 0 )//왼쪽벽
+				{
+					drawMirr(MirrInfo[3]);
+					printf("│");
+				}
+				if (x == B_GBOARD_WIDTH - 1)//오른벽
+				{
+					drawMirr(MirrInfo[1]);
+					printf("│");
+				}
+			}
+		}
+	SetCurrentCursorPos(curPos.X, curPos.Y);
+}
+
+
 void DrawOb()	//돌출 지형을 그리는 함수
 {
 	int x, y;
-
+	
 	if (Switch_N)
 	{
 		if (check == 0)
@@ -153,28 +252,36 @@ void DrawOb()	//돌출 지형을 그리는 함수
 		check++;
 	}
 
-	for (y = 0; y<29; y++)
+	if (B_OK)	//보스맵 그리기
 	{
-		for (x = 0; x<25; x++)
+		drawGB_B(GBInfo_B[0]);
+	}
+	else 	//일반맵 그리기
+	{
+		for (y = 0; y < 29; y++)
 		{
-			if (Switch_N)
+			for (x = 0; x < 25; x++)
 			{
-				SetCurrentCursorPos((y * 2), x);
+				if (Switch_N)
+				{
+					SetCurrentCursorPos((y * 2), x);
+				}
+				else
+					SetCurrentCursorPos((x * 2), y);
+
+				if (GBInfo_N[y][x] == 1)
+					printf("■");
+				if (GBInfo_N[y][x] == 2)
+					printf("▲");
+				if (GBInfo_N[y][x] == 3)
+					printf("★");
+				else
+					printf("　");
+
 			}
-			else
-				SetCurrentCursorPos((x * 2), y);
-
-			if (GBInfo_N[y][x] == 1)
-				printf("■");
-			if (GBInfo_N[y][x] == 2)
-				printf("▲");
-			if (GBInfo_N[y][x] == 3)
-				printf("★");
-			else
-				printf("　");
-
 		}
 	}
+	
 }
 
 void UpOB()	//돌출 지형을 일정 간격마다 위로 올려주는 함수 
@@ -225,7 +332,7 @@ int Physical(int maxLife)	//체력함수(캐릭터의 최대 체력을 받아서 현재 체력을 리�
 
 	if (nowLife == 0)	//체력이 0일때 game over
 	{
-		SetCurrentCursorPos(20, curPosY);
+		SetCurrentCursorPos(20, 30);
 		printf("Game Over!\n");
 		Sleep(50);
 		getchar();
@@ -239,28 +346,6 @@ int Physical(int maxLife)	//체력함수(캐릭터의 최대 체력을 받아서 현재 체력을 리�
 	return nowLife;	//현재 체력을 리턴한다.
 
 }
-
-//PC를 그리는 함수
-void drawPC(char PCInfo[4][4])
-{
-	int x, y;
-	COORD curPos = GetCurrentCursorPos();
-	for (y = 0; y<4; y++)
-	{
-		for (x = 0; x<4; x++)
-		{
-			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
-
-			if (PCInfo[y][x] == 1)
-			{
-				if (y == 1) printf("◎");
-				if (y == 2)	printf("△");
-			}
-		}
-	}
-	SetCurrentCursorPos(curPos.X, curPos.Y);
-}
-
 
 
 int isCrash(int posX, int posY, char PCInfo[4][4])	//충돌 함수
@@ -303,7 +388,7 @@ int isCrash(int posX, int posY, char PCInfo[4][4])	//충돌 함수
 				if ((PC_pos.X == MT_pos.X) && ((PC_pos.Y + 3 == MT_pos.Y) || (PC_pos.Y + 2 == MT_pos.Y) || (PC_pos.Y + 1 == MT_pos.Y)))	//운석 충돌 (서로 뚫고 지나감)
 				{
 					attacked = true;
-					
+
 				}
 
 			}
@@ -395,9 +480,9 @@ int Gravity_N()
 		return 0;
 	}
 
-	if (isCrash(PC_pos.X , PC_pos.Y + 1, PCInfo[0]) == 0 && Switch_N == true)	//전환맵 아래 벽
+	if (isCrash(PC_pos.X, PC_pos.Y + 1, PCInfo[0]) == 0 && Switch_N == true)	//전환맵 아래 벽
 		return 0;
-	
+
 	else if (isCrash(PC_pos.X + 2, PC_pos.Y + 1, PCInfo[0]) == 0 && Switch_N == true)	//전환맵 옆으로 다가오는 벽
 	{
 		PC_pos.X -= 2;
@@ -411,16 +496,6 @@ int Gravity_N()
 	drawPC(PCInfo[0]);
 	Sleep(50);
 
-	/*
-	if (isCrash(curPosX, curPosY + 1, PCInfo[0], GBInfo_N[0]) == 0)
-	return 0;
-	deletePC(PCInfo[0]);
-	DrawOb(GBInfo_N[0]);
-	PC_pos.Y += 1;
-	SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
-	drawPC(PCInfo[0]);
-	Sleep(25);
-	*/
 	return 1;
 }
 
@@ -458,7 +533,6 @@ int main(void)
 {
 
 	RemoveCursor();
-	//DeleteOb(GBInfo_N[0]);
 	DrawOb();
 
 	MT_pos.Y = 25;
@@ -467,20 +541,23 @@ int main(void)
 
 	while (1)
 	{
-		for (int y = 0; y < GBOARD_HEIGHT; y++)
+
+		if (B_OK == false)
 		{
-			GBInfo_N[y][0] = 1;
-			GBInfo_N[y][GBOARD_WIDTH - 1] = 1;
+			for (int y = 0; y < GBOARD_HEIGHT; y++)
+			{
+				GBInfo_N[y][0] = 1;
+				GBInfo_N[y][GBOARD_WIDTH - 1] = 1;
+			}
+			UpOB();
 		}
 
-		UpOB();
 		Sleep(50);
 		DrawOb();
 		Check_Ob++;
 
-		curPosX = PC_pos.X;
-		curPosY = PC_pos.Y;
-		SetCurrentCursorPos(curPosX, curPosY);
+		
+		SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
 		drawPC(PCInfo[0]);
 
 		Gravity_N();
@@ -498,13 +575,17 @@ int main(void)
 			MT_pos.Y = 25;
 		}
 
-		if (Check_Ob % 6 == 0)
-			MakeOb();
-
-		if (Check_Ob == 10)
+		if (B_OK == false)
 		{
-			GBInfo_N[10][3] = 3;
+			if (Check_Ob % 6 == 0)
+				MakeOb();
+
+			if (Check_Ob == 10)
+			{
+				GBInfo_N[10][3] = 3;
+			}
 		}
+
 	}
 
 	getchar();
