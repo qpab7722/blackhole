@@ -18,17 +18,22 @@
 
 COORD PC_pos = { 10,0 };
 COORD MT_pos = { 0,0 };
-int speed = 30;
-int check = 0; // 스위치후 delete
-
-int PCLife = 30;	//PC의 체력
-bool attacked = false;	//공격받았는지 알려주는 함수
-bool Switch_N = false; //스위치 충돌 알려주는 함수
+COORD Mirr_pos[4] = { 0 };//반사경 위치
+COORD Switch_pos[4] = { 0 };//스위치 위치
+COORD Boss_pos = { 0,0 };
 
 int GBInfo_N[GBOARD_HEIGHT][GBOARD_WIDTH];
+
+
+int speed = 30;
+int check = 0; // 스위치후 delete
+int PCLife = 30;	//PC의 체력
 int ObTime;	//돌출된 지형 만들어지는 X좌표
 int Check_Ob = 0;	//올라가는 간격	(장애물과 장애물사이 간격)
 int Ran;	//돌출된 지형 길이
+
+bool attacked = false;	//공격받았는지 알려주는 함수
+bool Switch_N = false; //스위치 충돌 알려주는 함수
 bool B_OK=true;//보스맵 전환 신호(임시)
 
 
@@ -164,76 +169,126 @@ void deletePC(char PCInfo[4][4])
 }
 
 //반사경을 그리는 함수
-void drawMirr(char MirrInfo[4][4])
+void drawMirr(char MirrInfo[2][2])
 {
 	int x, y;
 	COORD curPos = GetCurrentCursorPos();
-	for (y = 0; y<4; y++)	
-		for (x = 0; x<4; x++)
+	for (y = 0; y<2; y++)	
+		for (x = 0; x<2; x++)
 		{
 			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
-
-			if (MirrInfo[y][x] == '1')			
-			  printf("dddd");			
-		}
-	
+			if (MirrInfo[y][x] == 1)			
+				printf("＠");			
+		}	
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
-// 반사경을 지우는 함수
-void deleteMirr(char MirrInfo[4][4])
+
+//스위치를 그리는 함수
+void drawSwitch(char SwitchInfo[2][2])
+{
+	int x, y;
+	COORD curPos = GetCurrentCursorPos();
+	for (y = 0; y<2; y++)
+		for (x = 0; x<2; x++)
+		{
+			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
+			if (SwitchInfo[y][x] == 1)
+				printf("☎");
+		}
+	SetCurrentCursorPos(curPos.X, curPos.Y);
+}
+
+//Boss를 그리는 함수
+void drawBoss(char BossInfo[4][4])
 {
 	int x, y;
 	COORD curPos = GetCurrentCursorPos();
 	for (y = 0; y<4; y++)
+	{
 		for (x = 0; x<4; x++)
 		{
 			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
 
-			if (MirrInfo[y][x] == 'm')
-				printf(" ");
+			if (BossInfo[y][x] == 1)
+			{
+				if (y == 0) printf("◐");
+				if (y == 1)	printf("※");
+				else  printf("｜");
+			}
 		}
-
+	}
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
 
-//보스맵 을 그리는 함수
+//보스맵을 그리는 함수
 void drawGB_B(char GBInfo_B[30][30])
 {
-	int x, y;
+	int x, y, mn=0,sn=0;
 	COORD curPos = GetCurrentCursorPos();
 
 	for (y = 0;y<B_GBOARD_HEIGHT;y++)
 		for (x = 0;x < B_GBOARD_WIDTH;x++)
 		{
+			SetCurrentCursorPos((x * 2), y);
+
+			//벽그리기
 			if (GBInfo_B[y][x] == 1)
 			{
-				SetCurrentCursorPos((x * 2), y);
-
 				if (y == 0) //위벽
 				{
-					drawMirr(MirrInfo[0]);
 					if (x == 0) { printf("┌"); continue; }
 					if (x == B_GBOARD_WIDTH - 1) { printf("┐"); continue; }
 					printf("─");
 				}
 				if (y == B_GBOARD_HEIGHT - 1)//아래벽
 				{
-					drawMirr(MirrInfo[2]);
 					if (x == 0) { printf("└"); continue; }
 					if (x == B_GBOARD_WIDTH - 1) { printf("┘"); continue; }
 					printf("─");
 				}
 				if (x == 0 )//왼쪽벽
-				{
-					drawMirr(MirrInfo[3]);
 					printf("│");
-				}
+				
 				if (x == B_GBOARD_WIDTH - 1)//오른벽
-				{
-					drawMirr(MirrInfo[1]);
-					printf("│");
-				}
+					printf("│");			
 			}
+
+			//반사경그리기
+			if (GBInfo_B[y][x] == 'm')
+			{	
+				if(x == 1 || x == B_GBOARD_WIDTH - 2)//세로
+					drawMirr(MirrInfo[1]);
+				
+				else
+					drawMirr(MirrInfo[0]);
+				
+				Mirr_pos[mn].X = curPos.X;
+				Mirr_pos[mn].Y = curPos.Y;
+				mn++;
+			}
+
+			//스위치그리기
+			if (GBInfo_B[y][x] == 's')
+			{
+				if (x == 1 || x == B_GBOARD_WIDTH - 2)//세로
+					drawSwitch(SwitchInfo[1]);
+
+				else
+					drawSwitch(SwitchInfo[0]);
+
+				Switch_pos[sn].X = curPos.X;
+				Switch_pos[sn].Y = curPos.Y;
+				sn++;
+			}
+
+			//Boss그리기
+			if (GBInfo_B[y][x] == 'b')
+			{
+				drawBoss(BossInfo[0]);
+				Boss_pos.X = curPos.X;
+				Boss_pos.Y = curPos.Y;
+			}
+
 		}
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
