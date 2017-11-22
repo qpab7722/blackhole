@@ -16,6 +16,7 @@
 
 COORD PC_pos = { 10,0 };
 COORD MT_pos = { 0,0 };
+COORD Boss_pos = { 30,10 };
 int curPosX;
 int curPosY;
 int speed = 30;
@@ -29,6 +30,10 @@ int GBInfo_N[GBOARD_HEIGHT][GBOARD_WIDTH];
 int ObTime;	//돌출된 지형 만들어지는 X좌표
 int Check_Ob = 0;	//올라가는 간격	(장애물과 장애물사이 간격)
 int Ran;	//돌출된 지형 길이
+
+bool changeMap_Boss = false;
+int checkStage = 1;
+int count = 0;
 
 void RemoveCursor(void)
 {
@@ -227,7 +232,7 @@ int Physical(int maxLife)	//체력함수(캐릭터의 최대 체력을 받아서 현재 체력을 리�
 	{
 		SetCurrentCursorPos(20, curPosY);
 		printf("Game Over!\n");
-		Sleep(50);
+		Sleep(100);
 		getchar();
 		exit(0);
 	}
@@ -259,6 +264,89 @@ void drawPC(char PCInfo[4][4])
 		}
 	}
 	SetCurrentCursorPos(curPos.X, curPos.Y);
+}
+
+void DrawBoss(char BossInfo[5][5])
+{
+	int x, y;
+	COORD curPos = GetCurrentCursorPos();
+	for (y = 0; y<5; y++)
+	{
+		for (x = 0; x<5; x++)
+		{
+			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
+
+			if (BossInfo[y][x] == 1)
+				printf("Π");
+			if (BossInfo[y][x] == 2)
+				printf("<");
+			if (BossInfo[y][x] == 3)
+				printf(">");
+			if (BossInfo[y][x] == 4)
+				printf("Θ");
+			if (BossInfo[y][x] == 5)
+				printf("▼");
+		}
+	}
+	SetCurrentCursorPos(curPos.X, curPos.Y);
+}
+
+void DeleteBoss(char BossInfo[5][5])
+{
+	int x, y;
+	COORD curPos = GetCurrentCursorPos();
+	for (y = 0; y<5; y++)
+	{
+		for (x = 0; x<5; x++)
+		{
+			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
+
+			if (BossInfo[y][x] != 0)
+				printf(" ");
+		}
+	}
+	SetCurrentCursorPos(curPos.X, curPos.Y);
+}
+
+void ShootLaser_B(char LaserInfo[5][5])
+{
+	int x, y;
+	COORD curPos = GetCurrentCursorPos();
+	for (y = 0; y<5; y++)
+	{
+		for (x = 0; x<5; x++)
+		{
+			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
+
+			if (LaserInfo[y][x] == 1)
+				printf("*");
+		}
+
+		Sleep(100);
+	}
+	SetCurrentCursorPos(curPos.X, curPos.Y);
+
+}
+
+void MoveLaser_B(char LaserInfo[5][5])
+{
+	int x, y;
+	COORD curPos = GetCurrentCursorPos();
+	for (y = 0; y<5; y++)
+	{
+		for (x = 0; x<5; x++)
+		{
+			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
+
+			if (LaserInfo[y][x] == 1)
+				printf("*");
+		}
+
+	}
+	SetCurrentCursorPos(curPos.X, curPos.Y);
+
+
+
 }
 
 
@@ -303,7 +391,7 @@ int isCrash(int posX, int posY, char PCInfo[4][4])	//충돌 함수
 				if ((PC_pos.X == MT_pos.X) && ((PC_pos.Y + 3 == MT_pos.Y) || (PC_pos.Y + 2 == MT_pos.Y) || (PC_pos.Y + 1 == MT_pos.Y)))	//운석 충돌 (서로 뚫고 지나감)
 				{
 					attacked = true;
-					
+
 				}
 
 			}
@@ -395,9 +483,9 @@ int Gravity_N()
 		return 0;
 	}
 
-	if (isCrash(PC_pos.X , PC_pos.Y + 1, PCInfo[0]) == 0 && Switch_N == true)	//전환맵 아래 벽
+	if (isCrash(PC_pos.X, PC_pos.Y + 1, PCInfo[0]) == 0 && Switch_N == true)	//전환맵 아래 벽
 		return 0;
-	
+
 	else if (isCrash(PC_pos.X + 2, PC_pos.Y + 1, PCInfo[0]) == 0 && Switch_N == true)	//전환맵 옆으로 다가오는 벽
 	{
 		PC_pos.X -= 2;
@@ -423,6 +511,36 @@ int Gravity_N()
 	*/
 	return 1;
 }
+
+void isN_clear()//클리어(일반)
+{
+	changeMap_Boss = true;
+
+	printf("일반맵 클리어");	//일단 출력
+	Sleep(1000);
+}
+
+void isB_clear()//클리어(보스)
+{
+	//checkStage: 현재 스테이지
+
+	if (checkStage == 5)
+	{ 
+		printf("Game Clear!");
+		//bool Ranking = true;
+	}
+		
+	else
+	{
+		printf("Next Stage");
+		Sleep(1000);
+
+		checkStage++;
+
+		//bool stage_2 = true;	다음 스테이지로! 연결
+	}
+}
+
 
 void ProcessKeyInput()
 {
@@ -456,13 +574,14 @@ void ProcessKeyInput()
 
 int main(void)
 {
+	srand((unsigned int)time(NULL));
+	int L = (rand() % 4) + 1;
 
 	RemoveCursor();
 	//DeleteOb(GBInfo_N[0]);
 	DrawOb();
 
 	MT_pos.Y = 25;
-	srand((unsigned int)time(NULL));
 	MT_pos.X = (rand() % 5) * 2 + 10;
 
 	while (1)
@@ -474,7 +593,7 @@ int main(void)
 		}
 
 		UpOB();
-		Sleep(50);
+		//Sleep(50);
 		DrawOb();
 		Check_Ob++;
 
@@ -493,7 +612,6 @@ int main(void)
 
 		if (DrawMeteo() == 0) {
 			getchar;
-			srand((unsigned int)time(NULL));
 			MT_pos.X = (rand() % 5) * 2 + 10;
 			MT_pos.Y = 25;
 		}
@@ -505,6 +623,39 @@ int main(void)
 		{
 			GBInfo_N[10][3] = 3;
 		}
+
+		if (Check_Ob == 30)	//클리어(일반)
+			isN_clear();
+
+		if (Check_Ob == 5)	//임의로 보스 불러옴
+		{
+			curPosX = Boss_pos.X;
+			curPosY = Boss_pos.Y;
+			SetCurrentCursorPos(curPosX, curPosY);
+			DrawBoss(BossInfo[0]);	//보스 그림
+
+			SetCurrentCursorPos(curPosX, curPosY + 4 );
+			ShootLaser_B(LaserInfo[L]);	//보스 레이저
+
+			
+
+			while(1)
+			{
+				count++;
+				SetCurrentCursorPos(curPosX, curPosY + 4 + count);
+				MoveLaser_B(LaserInfo[L]);
+				Sleep(100);
+
+				if (curPosY + 4 + count > 28)
+					break;
+			}
+			
+
+			Sleep(3000);
+
+		}
+
+
 	}
 
 	getchar();
