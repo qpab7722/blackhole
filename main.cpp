@@ -13,10 +13,16 @@
 #define GBOARD_HEIGHT  29
 #define GBOARD_WIDTH  25
 
+//BOSS MAP length
+#define B_GBOARD_HEIGHT  30
+#define B_GBOARD_WIDTH  30
 
 COORD PC_pos = { 10,0 };
 COORD MT_pos = { 0,0 };
 COORD Boss_pos = { 30,10 };
+COORD Mirr_pos[4] = { 0 };//반사경 위치
+COORD Switch_pos[4] = { 0 };//스위치 위치
+
 int curPosX;
 int curPosY;
 int speed = 30;
@@ -31,9 +37,9 @@ int ObTime;	//돌출된 지형 만들어지는 X좌표
 int Check_Ob = 0;	//올라가는 간격	(장애물과 장애물사이 간격)
 int Ran;	//돌출된 지형 길이
 
-bool changeMap_Boss = false;
-int checkStage = 1;
-int count = 0;
+bool changeMap_Boss = false;	//bool B_OK = true;//보스맵 전환 신호(임시)
+int checkStage = 1;	//현재 스테이지
+int count = 0;	//레이저 커서 증가
 
 void RemoveCursor(void)
 {
