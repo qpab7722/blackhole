@@ -26,15 +26,16 @@ int GBInfo_N[GBOARD_HEIGHT][GBOARD_WIDTH];
 
 
 int speed = 30;
-int check = 0; // 스위치후 delete
 int PCLife = 30;	//PC의 체력
 int ObTime;	//돌출된 지형 만들어지는 X좌표
 int Check_Ob = 0;	//올라가는 간격	(장애물과 장애물사이 간격)
 int Ran;	//돌출된 지형 길이
+int check_N;//전환시간 검사
+int starttime = 0;//전환 시작 시가
 
 bool attacked = false;	//공격받았는지 알려주는 함수
 bool Switch_N = false; //스위치 충돌 알려주는 함수
-bool B_OK=true;//보스맵 전환 신호(임시)
+bool B_OK=false;//보스맵 전환 신호(임시)
 
 
 void RemoveCursor(void)
@@ -87,7 +88,11 @@ void ShowMT(char MeteoInfo[4][4]) {
 	{
 		for (x = 0; x<4; x++)
 		{
-			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
+			if (Switch_N)
+				SetCurrentCursorPos(curPos.Y + (y * 2), curPos.X + x);
+			else
+				SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
+			
 			if (MeteoInfo[y][x] == 1)
 				printf("◈");
 			if (MeteoInfo[y][x] == 2)
@@ -105,7 +110,11 @@ void DeleteMT(char MeteoInfo[4][4])
 	{
 		for (x = 0; x<4; x++)
 		{
-			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
+			if (Switch_N)
+				SetCurrentCursorPos(curPos.Y + (y * 2), curPos.X + x);
+			else
+				SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
+
 			if (MeteoInfo[y][x] == 1 || MeteoInfo[y][x] == 2)
 				printf(" ");
 		}
@@ -173,13 +182,16 @@ void drawMirr(char MirrInfo[2][2])
 {
 	int x, y;
 	COORD curPos = GetCurrentCursorPos();
+	
 	for (y = 0; y<2; y++)	
 		for (x = 0; x<2; x++)
 		{
 			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
-			if (MirrInfo[y][x] == 1)			
+			//SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 9);
+			if (MirrInfo[y][x] == 1)
 				printf("＠");			
 		}	
+	//SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
 
@@ -192,9 +204,11 @@ void drawSwitch(char SwitchInfo[2][2])
 		for (x = 0; x<2; x++)
 		{
 			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
+			//SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
 			if (SwitchInfo[y][x] == 1)
 				printf("☎");
 		}
+	//SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
 
@@ -300,11 +314,18 @@ void DrawOb()	//돌출 지형을 그리는 함수
 	
 	if (Switch_N)
 	{
-		if (check == 0)
+		if (check_N == 0)		
+			DeleteOb();			
+		
+		check_N++;
+
+		if (check_N== 11)
 		{
-			DeleteOb();
+			Switch_N = false;
+			starttime = 0;
+			check_N = 0;
+			Switch_N = false;
 		}
-		check++;
 	}
 
 	if (B_OK)	//보스맵 그리기
@@ -610,7 +631,7 @@ int main(void)
 		Sleep(50);
 		DrawOb();
 		Check_Ob++;
-
+		
 		
 		SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
 		drawPC(PCInfo[0]);
@@ -635,7 +656,7 @@ int main(void)
 			if (Check_Ob % 6 == 0)
 				MakeOb();
 
-			if (Check_Ob == 10)
+			if (Check_Ob == 5)
 			{
 				GBInfo_N[10][3] = 3;
 			}
