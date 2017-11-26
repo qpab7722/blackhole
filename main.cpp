@@ -16,7 +16,7 @@
 #define B_GBOARD_HEIGHT  31
 #define B_GBOARD_WIDTH  31
 
-COORD PC_pos = { 10,0 };
+COORD PC_pos = { 10,10 };
 COORD MT_pos = { 0,0 };
 COORD Mirr_pos[4] = { 0 };//반사경 위치
 COORD Switch_pos[4] = { 0 };//스위치 위치
@@ -37,10 +37,10 @@ int starttime = 0;//전환 시작 시가
 bool attacked = false;	//공격받았는지 알려주는 함수
 
 bool Switch_N = false; //스위치 충돌 알려주는 함수
-int Switch_B = 0;//보스맵 스위치 눌릴 때 마다 각도 조절해주는 함수
+int Switch_B = 1;//보스맵 스위치 눌릴 때 마다 각도 조절해주는 함수
 
-bool changeMap_Boss = false;//보스맵 전환 신호
-bool changeMap_Normal = true;//일반맵 전환 신호
+bool changeMap_Boss = true;//보스맵 전환 신호
+bool changeMap_Normal = false;//일반맵 전환 신호
 bool attacked_Boss = false;
 int count = 0;
 int L;//레이저 모델 번호
@@ -314,7 +314,7 @@ void DrawLaser()
 				ShootLaser_B(LaserInfo[5]);	//반사레이저 쏘기
 				if(count==22)
 					reflect = false;
-				Sleep(25);
+				Sleep(5);
 				DeleteLaser_B(LaserInfo[5]);
 			}
 
@@ -324,9 +324,9 @@ void DrawLaser()
 			SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + 3 + count);
 			ShootLaser_B(LaserInfo[L]);	//레이저 쏘기
 			if(reflect)
-				Sleep(25);
+				Sleep(5);
 			else
-				Sleep(50);
+				Sleep(10);
 			DeleteLaser_B(LaserInfo[L]);	//레이저 지움
 		}	
 		if (count == 22)	//20번째가 되면 그만 쏘고 다시 시작
@@ -352,7 +352,7 @@ void DrawLaser()
 				ShootLaser_B(LaserInfo[5]);	//반사레이저 쏘기
 				if (count == 16)
 					reflect = false;
-				Sleep(25);
+				Sleep(5);
 				DeleteLaser_B(LaserInfo[5]);
 			}
 
@@ -360,9 +360,9 @@ void DrawLaser()
 			SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + 3 + count);
 			ShootLaser_B(LaserInfo[L]);	//레이저 쏘기
 			if (reflect)
-				Sleep(25);
+				Sleep(5);
 			else
-				Sleep(50);
+				Sleep(10);
 			DeleteLaser_B(LaserInfo[L]);	//레이저 지움
 		}
 
@@ -1014,13 +1014,27 @@ int Gravity_N()
 
 	if (isCrash(PC_pos.X, PC_pos.Y + 1, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0 && changeMap_Normal == false && changeMap_Boss == true)
 		return 0;
-
-	deletePC(PCInfo[0]);
-	PC_pos.Y += 1;
-	SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
-	drawPC(PCInfo[0]);
-	Sleep(50);
-
+	
+	if (Switch_B % 2 == 1)
+	{
+		deletePC(PCInfo[0]);
+		PC_pos.Y += 1;
+		if(PC_pos.X<28)
+		PC_pos.X += 2;
+		else if(PC_pos.X>28)
+			PC_pos.X -= 2;
+		SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
+		drawPC(PCInfo[0]);
+		Sleep(50);
+	}
+	else 
+	{
+		deletePC(PCInfo[0]);
+		PC_pos.Y += 1;
+		SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
+		drawPC(PCInfo[0]);
+		Sleep(50);
+	}
 	return 1;
 }
 
