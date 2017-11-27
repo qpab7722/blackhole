@@ -25,7 +25,7 @@ COORD Boss_pos = { 0,0 }; //보스 위치
 
 int GBInfo_N[GBOARD_HEIGHT][GBOARD_WIDTH];
 
-int speed_laser = 100;
+int speed_laser = 20;
 int speed = 30;
 int check = 0; // 스위치후 delete
 int PCLife = 30;	//PC의 체력
@@ -44,7 +44,7 @@ int Switch_B = 0;//보스맵 스위치 눌릴 때 마다 각도 조절해주는 변수 (맵 모델 선택
 bool changeMap_Boss = false;//보스맵 전환 신호
 bool changeMap_Normal = true;//일반맵 전환 신호
 bool attacked_Boss = false;	//보스에게 공격 받았는지 알려주는 변수
-//int count = 0; // 레이저 간격 변수
+							//int count = 0; // 레이저 간격 변수
 int L;//레이저 모델 번호
 bool reflect = false;
 
@@ -203,7 +203,7 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][5], char GBInfo_
 {
 	int x, y;
 	int arrX = posX / 2;
-	int arrY = posY+1;
+	int arrY = posY + 1;
 
 	for (x = 0; x < 5; x++)
 		for (y = 0; y < 5; y++) {
@@ -231,10 +231,10 @@ void DrawLaser_B(char LaserInfo[5][5])
 		{
 			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
 
-			if (LaserInfo[y][x] == 1)			
-				printf("º");			
+			if (LaserInfo[y][x] == 1)
+				printf("º");
 
-		}	
+		}
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 
 }
@@ -251,7 +251,7 @@ void DeleteLaser_B(char LaserInfo[5][5])
 
 			if (LaserInfo[y][x] == 1)
 				printf(" ");
-		}	
+		}
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
 
@@ -265,22 +265,28 @@ void ShootLaser()
 		{
 			if (reflect)// 반사레이저 쏘기 
 			{
-				SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + 22 + 3 - i);
+				if (i != 0)
+				{
+					SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + len + 3 -1 - i + 1);
+					DeleteLaser_B(LaserInfo[5]);
+				}
+				SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + len + 3 -1 - i);
 				DrawLaser_B(LaserInfo[5]);	//반사레이저 
-				Sleep(speed_laser/2);
-				DeleteLaser_B(LaserInfo[5]);
-			}		
-			
-			SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + 3 + i);
-			DrawLaser_B(LaserInfo[L]);	//레이저 쏘기			
-			if (reflect)
-				Sleep(speed_laser/2);
-			else
-				Sleep(speed_laser);			
-			DeleteLaser_B(LaserInfo[L]);	//레이저 지움
+			}
 
-			if (i == len-1)	//초기화
+			if (i != 0)//첨엔 레이저 지울꺼 없당
 			{
+				SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + 3 + i - 1);
+				DeleteLaser_B(LaserInfo[L]);	//레이저 지움
+			}
+			SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + 3 + i);
+			DrawLaser_B(LaserInfo[L]);	//레이저 쏘기		
+
+			if (i == len - 1)	//초기화
+			{
+				DeleteLaser_B(LaserInfo[L]);
+				SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + len + 3 - 1 - i);
+				DeleteLaser_B(LaserInfo[5]);
 				reflect = false;
 			}
 			if (DetectCollision_Laser(Boss_pos.X, Boss_pos.Y + 3 + i, LaserInfo[L], GBInfo_B[Switch_B % 4]))//다음 포문에서 반사 레이저를 그려줌
@@ -289,13 +295,11 @@ void ShootLaser()
 			{
 				//L = (rand() % 4) + 1;
 				L = (++L % 4) + 1;//테스트용
-				
-			}
 
-			SetCurrentCursorPos(62, 12);
-			printf("Boss : %3d, %3d", Boss_pos.X, Boss_pos.Y + 3 + i);
+			}
+			Sleep(speed_laser);
 		}
-		
+
 	}
 
 	if (Switch_B % 2 == 1)	//마름모 맵
@@ -303,35 +307,45 @@ void ShootLaser()
 		int len = 16;
 		for (int i = 0; i<len; i++)
 		{
-			if (DetectCollision_Laser(Boss_pos.X, Boss_pos.Y + 3 + i, LaserInfo[L], GBInfo_B[Switch_B % 4]))
-				reflect = true;
-
-			if (reflect && i != len-1)
+			if (reflect)// 반사레이저 쏘기 
 			{
-				SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + 3 + 16 - i);
-				DrawLaser_B(LaserInfo[5]);	//반사레이저 쏘기
-				if (i == len)
-					reflect = false;
-				Sleep(speed_laser/2);
-				DeleteLaser_B(LaserInfo[5]);
+				if (i != 0)
+				{
+					SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + len + 3 - 1 - i + 1);
+					DeleteLaser_B(LaserInfo[5]);
+				}
+				SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + len + 3 - 1 - i);
+				DrawLaser_B(LaserInfo[5]);	//반사레이저 
+
 			}
 
-			
+			if (i != 0)//첨엔 레이저 지울꺼 없당
+			{
+				SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + 3 + i - 1);
+				DeleteLaser_B(LaserInfo[L]);	//레이저 지움
+			}
 			SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + 3 + i);
-			DrawLaser_B(LaserInfo[L]);	//레이저 쏘기
-			if (reflect)
-				Sleep(speed_laser/2);
-			else
-				Sleep(speed_laser);
-			DeleteLaser_B(LaserInfo[L]);	//레이저 지움
+			DrawLaser_B(LaserInfo[L]);	//레이저 쏘기		
 
-			if (i == len)	//20번째가 되면 그만 쏘고 다시 시작
+
+
+			if (i == len - 1)	//초기화
 			{
-				i = 0;
-				L = (rand() % 4) + 1;
+				DeleteLaser_B(LaserInfo[L]);
+				SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + len + 3 - 1 - i);
+				DeleteLaser_B(LaserInfo[5]);
+				reflect = false;
 			}
+			if (DetectCollision_Laser(Boss_pos.X, Boss_pos.Y + 3 + i, LaserInfo[L], GBInfo_B[Switch_B % 4]))//다음 포문에서 반사 레이저를 그려줌
+				reflect = true;
+			if (i == len - 1)	//초기화
+			{
+				//L = (rand() % 4) + 1;
+				L = (++L % 4) + 1;//테스트용
+			}
+			Sleep(speed_laser);
 		}
-		
+
 
 	}
 }
