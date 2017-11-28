@@ -49,7 +49,7 @@ int L;//레이저 모델 번호
 bool reflect = false;
 
 int BossLife = 10;	//보스의 체력
-int checkStage = 1;
+int checkStage = 1;	//현재 Stage
 
 
 void RemoveCursor(void)
@@ -179,26 +179,27 @@ void deletePC(char PCInfo[4][4])
 
 
 //Boss를 그리는 함수
-void DrawBoss(char BossInfo[5][5])
+void DrawBoss(char BossInfo[7][15])
 {
 	int x, y;
 	COORD curPos = GetCurrentCursorPos();
-	for (y = 0; y<5; y++)
+	for (y = 0; y<7; y++)
 	{
-		for (x = 0; x<5; x++)
+		for (x = 0; x<15; x++)
 		{
 			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
 
+			if (BossInfo[y][x] == 1)
+				printf("▣");
 			if (BossInfo[y][x] == 2)
-				printf("Π");
+				printf("♣");
 			if (BossInfo[y][x] == 3)
-				printf("<");
+				printf("▲");
 			if (BossInfo[y][x] == 4)
-				printf(">");
-			if (BossInfo[y][x] == 5)
-				printf("Θ");
-			if (BossInfo[y][x] == 6)
 				printf("▼");
+			if (BossInfo[y][x] == 5)
+				printf("■");
+
 		}
 	}
 	SetCurrentCursorPos(curPos.X, curPos.Y);
@@ -773,7 +774,8 @@ int Physical_PC(int maxLife)	//체력함수(캐릭터의 최대 체력을 받아서 현재 체력을 
 
 	if (nowLife == 0)	//체력이 0일때 game over
 	{
-		SetCurrentCursorPos(30, 10);
+		SetCurrentCursorPos(30, 0);
+
 		printf("Game Over!\n");
 		Sleep(50);
 		getchar();
@@ -800,7 +802,7 @@ int Physical_Boss(int maxLife)	//체력함수(캐릭터의 최대 체력을 받아서 현재 체력�
 	}
 
 	//else if (attacked && attacked_Boss == false)	//아팠을때	//레이저 수정 받아야 할듯	//그래서 일단 계속 감소하도록했음
-		nowLife--;
+		//nowLife--;
 
 	attacked = false;	//다시 attacked을 false (원상태)로 돌려준다.
 	return nowLife;	//현재 체력을 리턴한다.
@@ -866,10 +868,9 @@ int isCrash(int posX, int posY, char PCInfo[4][4], char GBInfo_B[31][31])	//충돌
 				}
 
 
-				if ((PC_pos.X == MT_pos.X) && ((PC_pos.Y + 3 == MT_pos.Y) || (PC_pos.Y + 2 == MT_pos.Y) || (PC_pos.Y + 1 == MT_pos.Y)))	//운석 충돌 (서로 뚫고 지나감)
+				if (((PC_pos.Y == MT_pos.X) || (PC_pos.Y+1 == MT_pos.X)) && ((PC_pos.X + 3 == MT_pos.Y) || (PC_pos.X + 2 == MT_pos.Y) || (PC_pos.X + 1 == MT_pos.Y)))	//운석 충돌 (서로 뚫고 지나감)
 				{
 					attacked = true;
-					return 0;
 				}
 
 			}
@@ -1145,9 +1146,10 @@ int main(void)
 			{
 				GBInfo_N[10][3] = 3;
 			}
+
 		}
 
-		if (changeMap_Normal == true && changeMap_Boss == false && Check_Ob == 5)	//5번째 줄일 때 클리어(일반) ->줄 수 바꿔야함
+		if (changeMap_Normal == true && changeMap_Boss == false && Check_Ob == 50)	//5번째 줄일 때 클리어(일반) ->줄 수 바꿔야함
 			isN_clear();
 		 
 		if (changeMap_Normal == false && changeMap_Boss == true && check_B>0)	//레이저를 쏘쟛	//check_B는 보스맵을 다 그리고서 레이저를 쏘려고
