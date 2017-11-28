@@ -740,6 +740,9 @@ void isB_Clear()//클리어(보스)
 		SetCurrentCursorPos(30, 11);
 		printf("Stage %d 클리어", checkStage);	//일단 출력
 		Sleep(1000);
+		
+		printf("Game Clear!!");
+		Sleep(1000);
 
 		//랭킹함수 여기에다 놓으시면 되시고요~
 	}
@@ -751,7 +754,7 @@ void isB_Clear()//클리어(보스)
 		Sleep(1000);
 
 		SetCurrentCursorPos(30, 12);
-		printf("다음탄 계속");
+		printf("다음 Stage 계속...!");
 		Sleep(1000);
 
 		deleteGB_B();	//보스맵 지우기
@@ -1016,9 +1019,11 @@ void isN_clear()//클리어(일반)
 	printf("Stage %d 일반맵 클리어",checkStage);	//일단 출력
 	Sleep(1000);
 
+
+	check_B = 0;//콘솔창 한번 지워주기 위해서 
+	deleteGB_B();	//stage 글자 안지워져서 지우려고 
 	changeMap_Normal = false;//일반맵 아님
 	changeMap_Boss = true;//보스맵 맞음
-	check_B = 0;//콘솔창 한번 지워주기 위해서 
 	PC_pos.Y = 10;//PC위치 옮겨줌
 
 	Physical_Boss(BossLife);	// 탄마다 보스 체력 다르게 해줌
