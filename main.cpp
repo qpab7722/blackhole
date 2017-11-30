@@ -19,43 +19,43 @@
 
 COORD PC_pos = { 10,10 };
 COORD MT_pos = { 0,0 };
-COORD Mirr_pos[8] = { 0 };//ë°˜ì‚¬ê²½ ìœ„ì¹˜
-COORD Switch_pos[4] = { 0 };//ìŠ¤ìœ„ì¹˜ ìœ„ì¹˜
-COORD Boss_pos = { 0,0 }; //ë³´ìŠ¤ ìœ„ì¹˜
+COORD Mirr_pos[8] = { 0 };//¹İ»ç°æ À§Ä¡
+COORD Switch_pos[4] = { 0 };//½ºÀ§Ä¡ À§Ä¡
+COORD Boss_pos = { 0,0 }; //º¸½º À§Ä¡
 
 int GBInfo_N[GBOARD_HEIGHT][GBOARD_WIDTH];
 
 int speed_laser = 20;
 int speed = 30;
-int check = 0; // ìŠ¤ìœ„ì¹˜í›„ delete
-int PCLife = 30;	//PCì˜ ì²´ë ¥
+int check = 0; // ½ºÀ§Ä¡ÈÄ delete
+int PCLife = 30;	//PCÀÇ Ã¼·Â
 
-int ObTime = 0;	//ì˜¬ë¼ê°€ëŠ” ê°„ê²©	(ì¥ì• ë¬¼ê³¼ ì¥ì• ë¬¼ì‚¬ì´ ê°„ê²©)
-int Check_Ob = 0;	//ëŒì¶œëœ ì§€í˜• ë§Œë“¤ì–´ì§€ëŠ” Xì¢Œí‘œ
-int Ran;	//ëŒì¶œëœ ì§€í˜• ê¸¸ì´
+int ObTime = 0;	//¿Ã¶ó°¡´Â °£°İ	(Àå¾Ö¹°°ú Àå¾Ö¹°»çÀÌ °£°İ)
+int Check_Ob = 0;	//µ¹ÃâµÈ ÁöÇü ¸¸µé¾îÁö´Â XÁÂÇ¥
+int Ran;	//µ¹ÃâµÈ ÁöÇü ±æÀÌ
 
-int check_N;//ì „í™˜ì‹œê°„ ê²€ì‚¬
-int check_B;//ë³´ìŠ¤ë§µ ëª¨ë¸ í™”ë©´ ì§€ìš°ê¸°
-int starttime = 0;//ì „í™˜ ì‹œì‘ ì‹œê°„
+int check_N;//ÀüÈ¯½Ã°£ °Ë»ç
+int check_B;//º¸½º¸Ê ¸ğµ¨ È­¸é Áö¿ì±â
+int starttime = 0;//ÀüÈ¯ ½ÃÀÛ ½Ã°£
 
-bool attacked = false;	//ê³µê²©ë°›ì•˜ëŠ”ì§€ ì•Œë ¤ì£¼ëŠ” ë³€ìˆ˜
+bool attacked = false;	//°ø°İ¹Ş¾Ò´ÂÁö ¾Ë·ÁÁÖ´Â º¯¼ö
 
-bool Switch_N = false; //ìŠ¤ìœ„ì¹˜ ì¶©ëŒ ì•Œë ¤ì£¼ëŠ” ë³€ìˆ˜
-int Switch_B = 0;//ë³´ìŠ¤ë§µ ìŠ¤ìœ„ì¹˜ ëˆŒë¦´ ë•Œ ë§ˆë‹¤ ê°ë„ ì¡°ì ˆí•´ì£¼ëŠ” ë³€ìˆ˜ (ë§µ ëª¨ë¸ ì„ íƒ 4ê°œ)
+bool Switch_N = false; //½ºÀ§Ä¡ Ãæµ¹ ¾Ë·ÁÁÖ´Â º¯¼ö
+int Switch_B = 0;//º¸½º¸Ê ½ºÀ§Ä¡ ´­¸± ¶§ ¸¶´Ù °¢µµ Á¶ÀıÇØÁÖ´Â º¯¼ö (¸Ê ¸ğµ¨ ¼±ÅÃ 4°³)
 
-bool changeMap_Boss = false;//ë³´ìŠ¤ë§µ ì „í™˜ ì‹ í˜¸
-bool changeMap_Normal = true;//ì¼ë°˜ë§µ ì „í™˜ ì‹ í˜¸
-bool attacked_Boss = false;	//ë³´ìŠ¤ì—ê²Œ ê³µê²© ë°›ì•˜ëŠ”ì§€ ì•Œë ¤ì£¼ëŠ” ë³€ìˆ˜
-int count = 0; // ë ˆì´ì € ê°„ê²© ë³€ìˆ˜
-int L;//ë ˆì´ì € ëª¨ë¸ ë²ˆí˜¸
-bool reflect = false;
+bool changeMap_Boss = false;//º¸½º¸Ê ÀüÈ¯ ½ÅÈ£
+bool changeMap_Normal = true;//ÀÏ¹İ¸Ê ÀüÈ¯ ½ÅÈ£
+bool attacked_Boss = false;	//º¸½º¿¡°Ô °ø°İ ¹Ş¾Ò´ÂÁö ¾Ë·ÁÁÖ´Â º¯¼ö
+int count = 0; // ·¹ÀÌÀú °£°İ º¯¼ö
+int L;//·¹ÀÌÀú ¸ğµ¨ ¹øÈ£
+bool reflect = false;//¹İ»çÃ¼Å© º¯¼ö
 
-int BossLife = 10;	//ë³´ìŠ¤ì˜ ì²´ë ¥
-int checkStage = 1;	//í˜„ì¬ Stage
+int BossLife = 10;	//º¸½ºÀÇ Ã¼·Â
+int checkStage = 1;	//ÇöÀç Stage
 
-int Mirr_num[4] = { 0 };//ë¯¸ëŸ¬ì— ëˆ„ì ëœ íšŸìˆ˜ ë³€ìˆ˜
-int Mirr_overheattime[4] = { -1 };//ê³¼ì—´ ìƒíƒœ  ë³€ìˆ˜
-int B_time = 0;//ë³´ìŠ¤ë§µì…ì¥í•œì§€ ëª‡ë¶„ì§¼ì§€
+int Mirr_num[4] = { 0 };//¹Ì·¯¿¡ ´©ÀûµÈ È½¼ö º¯¼ö
+int Mirr_overheattime[4] = { -1 };//°ú¿­ »óÅÂ°¡ ½ÃÀÛµÈ ½Ã°£À» Ã¼Å©ÇÏ´Â º¯¼ö
+int B_time = 0;//º¸½º¸ÊÀÔÀåÇÑÁö ¸îºĞÂ²Áö
 
 
 void RemoveCursor(void)
@@ -82,7 +82,7 @@ void SetCurrentCursorPos(int x, int y)
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 }
 
-int DetectCollision_Meteo(int posX, int posY, char MeteoInfo[4][4])	//ë§µ ëœë¤ìœ¼ë¡œ ë‚˜ì˜¤ë©´ ì† ë´ì•¼ í• ë“¯
+int DetectCollision_Meteo(int posX, int posY, char MeteoInfo[4][4])	//¸Ê ·£´ıÀ¸·Î ³ª¿À¸é ¼Õ ºÁ¾ß ÇÒµí
 {
 	int x, y;
 	int arrX = posX / 2;
@@ -116,14 +116,14 @@ void DeleteOb()
 			SetCurrentCursorPos((x * 2), y);
 			if (GBInfo_N[y][x] != 0)
 				printf(" ");
-			if (changeMap_Normal == false && changeMap_Boss)//ì¼ë°˜ë§µ ì•„ë‹ˆê³ , ë³´ìŠ¤ë§µì¼ë•Œ ì¥ì• ë¬¼ ì§€ì›Œì¤Œ
+			if (changeMap_Normal == false && changeMap_Boss)//ÀÏ¹İ¸Ê ¾Æ´Ï°í, º¸½º¸ÊÀÏ¶§ Àå¾Ö¹° Áö¿öÁÜ
 				printf(" ");
 		}
 	}
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
 
-//PCë¥¼ ê·¸ë¦¬ëŠ” í•¨ìˆ˜
+//PC¸¦ ±×¸®´Â ÇÔ¼ö
 void drawPC(char PCInfo[4][4])
 {
 	int x, y;
@@ -136,15 +136,15 @@ void drawPC(char PCInfo[4][4])
 
 			if (PCInfo[y][x] == 1)
 			{
-				if (y == 1) printf("â—");
-				if (y == 2)	printf("â–³");
+				if (y == 1) printf("¡İ");
+				if (y == 2)	printf("¡â");
 			}
 		}
 	}
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
 
-//PCë¥¼ ì§€ìš°ëŠ” í•¨ìˆ˜
+//PC¸¦ Áö¿ì´Â ÇÔ¼ö
 void deletePC(char PCInfo[4][4])
 {
 	int x, y;
@@ -163,7 +163,7 @@ void deletePC(char PCInfo[4][4])
 }
 
 
-//Bossë¥¼ ê·¸ë¦¬ëŠ” í•¨ìˆ˜
+//Boss¸¦ ±×¸®´Â ÇÔ¼ö
 void DrawBoss(char BossInfo[7][15])
 {
 	int x, y;
@@ -175,22 +175,22 @@ void DrawBoss(char BossInfo[7][15])
 			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
 
 			if (BossInfo[y][x] == 1)
-				printf("â–£");
+				printf("¢Ã");
 			if (BossInfo[y][x] == 2)
-				printf("â™£");
+				printf("¢À");
 			if (BossInfo[y][x] == 3)
-				printf("â–²");
+				printf("¡ã");
 			if (BossInfo[y][x] == 4)
-				printf("â–¼");
+				printf("¡å");
 			if (BossInfo[y][x] == 5)
-				printf("â– ");
+				printf("¡á");
 
 		}
 	}
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
 
-//Bossë¥¼ ì§€ì›Œì£¼ëŠ” í•¨ìˆ˜
+//Boss¸¦ Áö¿öÁÖ´Â ÇÔ¼ö
 void DeleteBoss(char BossInfo[5][5])
 {
 	int x, y;
@@ -208,13 +208,13 @@ void DeleteBoss(char BossInfo[5][5])
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
 
-int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][5], char GBInfo_B[31][31])//ë ˆì´ì €ë‘ ë°˜ì‚¬ê²½ì´ë‘ ë¶€ë”ªíë•Œ í•¨ìˆ˜
+int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][5], char GBInfo_B[31][31])//·¹ÀÌÀú¶û ¹İ»ç°æÀÌ¶û ºÎµúÈú¶§ ÇÔ¼ö
 {
 	int x, y;
 	int arrX = posX / 2;
 	int arrY = posY + 1;
 
-	int nonotime = 3;//ëª‡ë²ˆ ë²”ì¶œê»€ì§€
+	int nonotime = 3;//¸î¹ø ¹üÃâ²«Áö
 	int mindex=-1;
 
 	for (x = 0; x < 5; x++)
@@ -222,7 +222,7 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][5], char GBInfo_
 			if (LaserInfo[y][x] == 1)
 			{
 				SetCurrentCursorPos(62, 15);
-				printf("ì¶©ëŒ");
+				printf("Ãæµ¹");
 				switch (GBInfo_B[arrY + y][arrX + x])
 				{
 					//1
@@ -235,7 +235,7 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][5], char GBInfo_
 					if (Mirr_num[mindex] == 4) Mirr_overheattime[mindex] = B_time;
 					else if (Mirr_num[mindex] > 4)
 					{
-						if (Mirr_overheattime[mindex]>0 && B_time - Mirr_overheattime[mindex] > nonotime)//10ì´ˆê°„ ê³¼ì—´ í›„ ì´ˆê¸°í™”
+						if (Mirr_overheattime[mindex]>0 && B_time - Mirr_overheattime[mindex] > nonotime)//10ÃÊ°£ °ú¿­ ÈÄ ÃÊ±âÈ­
 						{
 							Mirr_overheattime[mindex] = -1;
 							Mirr_num[mindex] = 0;
@@ -256,7 +256,7 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][5], char GBInfo_
 					if (Mirr_num[mindex] == 4) Mirr_overheattime[mindex] = B_time;
 					else if (Mirr_num[mindex] > 4)
 					{
-						if (Mirr_overheattime[mindex]>0 && B_time - Mirr_overheattime[mindex] > nonotime)//10ì´ˆê°„ ê³¼ì—´ í›„ ì´ˆê¸°í™”
+						if (Mirr_overheattime[mindex]>0 && B_time - Mirr_overheattime[mindex] > nonotime)//10ÃÊ°£ °ú¿­ ÈÄ ÃÊ±âÈ­
 						{
 							Mirr_overheattime[mindex] = -1;
 							Mirr_num[mindex] = 0;
@@ -277,7 +277,7 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][5], char GBInfo_
 					if (Mirr_num[mindex] == 4) Mirr_overheattime[mindex] = B_time;
 					else if (Mirr_num[mindex] > 4)
 					{
-						if (Mirr_overheattime[mindex]>0 && B_time - Mirr_overheattime[mindex] > nonotime)//10ì´ˆê°„ ê³¼ì—´ í›„ ì´ˆê¸°í™”
+						if (Mirr_overheattime[mindex]>0 && B_time - Mirr_overheattime[mindex] > nonotime)//10ÃÊ°£ °ú¿­ ÈÄ ÃÊ±âÈ­
 						{
 							Mirr_overheattime[mindex] = -1;
 							Mirr_num[mindex] = 0;
@@ -299,7 +299,7 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][5], char GBInfo_
 					if (Mirr_num[mindex] == 4) Mirr_overheattime[mindex] = B_time;
 					else if (Mirr_num[mindex] > 4)
 					{
-						if (Mirr_overheattime[mindex]>0 && B_time - Mirr_overheattime[mindex] > nonotime)//10ì´ˆê°„ ê³¼ì—´ í›„ ì´ˆê¸°í™”
+						if (Mirr_overheattime[mindex]>0 && B_time - Mirr_overheattime[mindex] > nonotime)//10ÃÊ°£ °ú¿­ ÈÄ ÃÊ±âÈ­
 						{
 							Mirr_overheattime[mindex] = -1;
 							Mirr_num[mindex] = 0;
@@ -320,7 +320,7 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][5], char GBInfo_
 
 }
 
-//Laserë¥¼ ê·¸ë¦¬ëŠ” í•¨ìˆ˜
+//Laser¸¦ ±×¸®´Â ÇÔ¼ö
 void DrawLaser_B(char LaserInfo[5][5])
 {
 	int x, y;
@@ -331,14 +331,14 @@ void DrawLaser_B(char LaserInfo[5][5])
 			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
 
 			if (LaserInfo[y][x] == 1)
-				printf("Âº");
+				printf("¨¬");
 
 		}
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 
 }
 
-//Laserë¥¼ ì§€ìš°ëŠ” í•¨ìˆ˜
+//Laser¸¦ Áö¿ì´Â ÇÔ¼ö
 void DeleteLaser_B(char LaserInfo[5][5])
 {
 	int x, y;
@@ -354,15 +354,15 @@ void DeleteLaser_B(char LaserInfo[5][5])
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
 
-//Laserë¥¼ ì˜ëŠ”ëŠ” í•¨ìˆ˜ (Draw & Delete) 
+//Laser¸¦ ½î´Â´Â ÇÔ¼ö (Draw & Delete) 
 void ShootLaser()
 {
-	if (Switch_B % 2 == 0)	//ì§ì‚¬ê°í˜• ë§µ
+	if (Switch_B % 2 == 0)	//Á÷»ç°¢Çü ¸Ê
 	{
 		int len = 21;
 		for (int i = 0; i<len; i++)
 		{
-			if (reflect)// ë°˜ì‚¬ë ˆì´ì € ì˜ê¸° 
+			if (reflect)// ¹İ»ç·¹ÀÌÀú ½î±â 
 			{
 				if (i != 0)
 				{
@@ -370,28 +370,28 @@ void ShootLaser()
 					DeleteLaser_B(LaserInfo[5]);
 				}
 				SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + len + 3 - 1 - i);
-				DrawLaser_B(LaserInfo[5]);	//ë°˜ì‚¬ë ˆì´ì € 
+				DrawLaser_B(LaserInfo[5]);	//¹İ»ç·¹ÀÌÀú 
 			}
 
-			if (i != 0)//ì²¨ì—” ë ˆì´ì € ì§€ìš¸êº¼ ì—†ë‹¹
+			if (i != 0)//Ã·¿£ ·¹ÀÌÀú Áö¿ï²¨ ¾ø´ç
 			{
 				SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + 3 + i - 1);
-				DeleteLaser_B(LaserInfo[L]);	//ë ˆì´ì € ì§€ì›€
+				DeleteLaser_B(LaserInfo[L]);	//·¹ÀÌÀú Áö¿ò
 			}
 			SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + 3 + i);
-			DrawLaser_B(LaserInfo[L]);	//ë ˆì´ì € ì˜ê¸°		
+			DrawLaser_B(LaserInfo[L]);	//·¹ÀÌÀú ½î±â		
 
-			if (i == len - 1)	//ì´ˆê¸°í™”
+			if (i == len - 1)	//ÃÊ±âÈ­
 			{
 				DeleteLaser_B(LaserInfo[L]);
 				SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + len + 3 - 1 - i);
 				DeleteLaser_B(LaserInfo[5]);
 				reflect = false;
 			}
-			if (DetectCollision_Laser(Boss_pos.X, Boss_pos.Y + 3 + i, LaserInfo[L], GBInfo_B[Switch_B % 4]))//ë‹¤ìŒ í¬ë¬¸ì—ì„œ ë°˜ì‚¬ ë ˆì´ì €ë¥¼ ê·¸ë ¤ì¤Œ
+			if (DetectCollision_Laser(Boss_pos.X, Boss_pos.Y + 3 + i, LaserInfo[L], GBInfo_B[Switch_B % 4]))//´ÙÀ½ Æ÷¹®¿¡¼­ ¹İ»ç ·¹ÀÌÀú¸¦ ±×·ÁÁÜ
 				reflect = true;
 
-			if (i == len - 1)	//ì´ˆê¸°í™”
+			if (i == len - 1)	//ÃÊ±âÈ­
 			{
 				L = (rand() % 4) + 1;
 			}
@@ -400,12 +400,12 @@ void ShootLaser()
 
 	}
 
-	if (Switch_B % 2 == 1)	//ë§ˆë¦„ëª¨ ë§µ
+	if (Switch_B % 2 == 1)	//¸¶¸§¸ğ ¸Ê
 	{
 		int len = 16;
 		for (int i = 0; i<len; i++)
 		{
-			if (reflect)// ë°˜ì‚¬ë ˆì´ì € ì˜ê¸° 
+			if (reflect)// ¹İ»ç·¹ÀÌÀú ½î±â 
 			{
 				if (i != 0)
 				{
@@ -413,33 +413,33 @@ void ShootLaser()
 					DeleteLaser_B(LaserInfo[5]);
 				}
 				SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + len + 3 - 1 - i);
-				DrawLaser_B(LaserInfo[5]);	//ë°˜ì‚¬ë ˆì´ì € 
+				DrawLaser_B(LaserInfo[5]);	//¹İ»ç·¹ÀÌÀú 
 
 			}
 
-			if (i != 0)//ì²¨ì—” ë ˆì´ì € ì§€ìš¸êº¼ ì—†ë‹¹
+			if (i != 0)//Ã·¿£ ·¹ÀÌÀú Áö¿ï²¨ ¾ø´ç
 			{
 				SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + 3 + i - 1);
-				DeleteLaser_B(LaserInfo[L]);	//ë ˆì´ì € ì§€ì›€
+				DeleteLaser_B(LaserInfo[L]);	//·¹ÀÌÀú Áö¿ò
 			}
 			SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + 3 + i);
-			DrawLaser_B(LaserInfo[L]);	//ë ˆì´ì € ì˜ê¸°		
+			DrawLaser_B(LaserInfo[L]);	//·¹ÀÌÀú ½î±â		
 
 
 
-			if (i == len - 1)	//ì´ˆê¸°í™”
+			if (i == len - 1)	//ÃÊ±âÈ­
 			{
 				DeleteLaser_B(LaserInfo[L]);
 				SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + len + 3 - 1 - i);
 				DeleteLaser_B(LaserInfo[5]);
 				reflect = false;
 			}
-			if (DetectCollision_Laser(Boss_pos.X, Boss_pos.Y + 3 + i, LaserInfo[L], GBInfo_B[Switch_B % 4]))//ë‹¤ìŒ í¬ë¬¸ì—ì„œ ë°˜ì‚¬ ë ˆì´ì €ë¥¼ ê·¸ë ¤ì¤Œ
+			if (DetectCollision_Laser(Boss_pos.X, Boss_pos.Y + 3 + i, LaserInfo[L], GBInfo_B[Switch_B % 4]))//´ÙÀ½ Æ÷¹®¿¡¼­ ¹İ»ç ·¹ÀÌÀú¸¦ ±×·ÁÁÜ
 				reflect = true;
-			if (i == len - 1)	//ì´ˆê¸°í™”
+			if (i == len - 1)	//ÃÊ±âÈ­
 			{
 				//L = (rand() % 4) + 1;
-				L = (++L % 4) + 1;//í…ŒìŠ¤íŠ¸ìš©
+				L = (++L % 4) + 1;//Å×½ºÆ®¿ë
 			}
 			Sleep(speed_laser);
 		}
@@ -448,7 +448,7 @@ void ShootLaser()
 	}
 }
 
-//ë³´ìŠ¤ë§µì„ ê·¸ë¦¬ëŠ” í•¨ìˆ˜
+//º¸½º¸ÊÀ» ±×¸®´Â ÇÔ¼ö
 void drawGB_B(char GBInfo_B[31][31])
 {
 	int x, y, mnb = 0, snb = 0;
@@ -459,13 +459,13 @@ void drawGB_B(char GBInfo_B[31][31])
 		{
 			SetCurrentCursorPos((x * 2), y);
 
-			//ë²½ê·¸ë¦¬ê¸°
+			//º®±×¸®±â
 			if (GBInfo_B[y][x] == 1)
 			{
-				printf("â– ");
+				printf("¡á");
 			}
 
-			//ë°˜ì‚¬ê²½ê·¸ë¦¬ê¸°
+			//¹İ»ç°æ±×¸®±â
 			if (GBInfo_B[y][x] == 'u' || GBInfo_B[y][x] == 'i' || GBInfo_B[y][x] == 'o' || GBInfo_B[y][x] == 'p')
 			{
 				printf("@");
@@ -476,17 +476,17 @@ void drawGB_B(char GBInfo_B[31][31])
 
 			}
 
-			//ìŠ¤ìœ„ì¹˜ê·¸ë¦¬ê¸°
+			//½ºÀ§Ä¡±×¸®±â
 			if (GBInfo_B[y][x] == 's')
 			{
-				printf("â˜");
+				printf("¢Ï");
 
 				Switch_pos[snb].X = curPos.X;
 				Switch_pos[snb].Y = curPos.Y;
 				snb++;
 			}
 
-			//Bossê·¸ë¦¬ê¸°
+			//Boss±×¸®±â
 			if (GBInfo_B[y][x] == 'b')
 			{
 
@@ -501,13 +501,13 @@ void drawGB_B(char GBInfo_B[31][31])
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
 
-void Rotate_BossMap() //ë§µ ëŒë ¤ì£¼ëŠ” í•¨ìˆ˜
+void Rotate_BossMap() //¸Ê µ¹·ÁÁÖ´Â ÇÔ¼ö
 {
 	int x, y, mn = 0, sn = 0;
 	COORD curPos = GetCurrentCursorPos();
 
 
-	if ((Switch_B % 4) == 1) // 45ë„ ì´ë™
+	if ((Switch_B % 4) == 1) // 45µµ ÀÌµ¿
 	{
 
 		for (y = 0; y<B_GBOARD_HEIGHT; y++)
@@ -515,13 +515,13 @@ void Rotate_BossMap() //ë§µ ëŒë ¤ì£¼ëŠ” í•¨ìˆ˜
 			{
 				SetCurrentCursorPos((x * 2), y);
 
-				//ë²½ê·¸ë¦¬ê¸°
+				//º®±×¸®±â
 				if (GBInfo_B[1][y][x] == 1)
 				{
-					printf("â—†");
+					printf("¡ß");
 				}
 
-				//ë°˜ì‚¬ê²½ê·¸ë¦¬ê¸°
+				//¹İ»ç°æ±×¸®±â
 				if (GBInfo_B[1][y][x] == 'm')
 				{
 					printf("@");
@@ -531,17 +531,17 @@ void Rotate_BossMap() //ë§µ ëŒë ¤ì£¼ëŠ” í•¨ìˆ˜
 					mn++;
 				}
 
-				//ìŠ¤ìœ„ì¹˜ê·¸ë¦¬ê¸°
+				//½ºÀ§Ä¡±×¸®±â
 				if (GBInfo_B[1][y][x] == 's')
 				{
-					printf("â˜");
+					printf("¢Ï");
 
 					Switch_pos[sn].X = curPos.X;
 					Switch_pos[sn].Y = curPos.Y;
 					sn++;
 				}
 
-				//Bossê·¸ë¦¬ê¸°
+				//Boss±×¸®±â
 				if (GBInfo_B[1][y][x] == 'b')
 				{
 					Boss_pos.X = x * 2;
@@ -556,7 +556,7 @@ void Rotate_BossMap() //ë§µ ëŒë ¤ì£¼ëŠ” í•¨ìˆ˜
 		SetCurrentCursorPos(curPos.X, curPos.Y);
 	}
 
-	else if ((Switch_B % 4) == 2) // 90ë„ ì´ë™
+	else if ((Switch_B % 4) == 2) // 90µµ ÀÌµ¿
 	{
 		for (y = 0; y < B_GBOARD_HEIGHT; y++)
 		{
@@ -564,13 +564,13 @@ void Rotate_BossMap() //ë§µ ëŒë ¤ì£¼ëŠ” í•¨ìˆ˜
 			{
 				SetCurrentCursorPos((x * 2), y);
 
-				//ë²½ê·¸ë¦¬ê¸°
+				//º®±×¸®±â
 				if (GBInfo_B[2][y][x] == 1)
 				{
-					printf("â– ");
+					printf("¡á");
 				}
 
-				//ë°˜ì‚¬ê²½ê·¸ë¦¬ê¸°
+				//¹İ»ç°æ±×¸®±â
 				if (GBInfo_B[2][y][x] == 'm')
 				{
 					printf("@");
@@ -580,17 +580,17 @@ void Rotate_BossMap() //ë§µ ëŒë ¤ì£¼ëŠ” í•¨ìˆ˜
 					mn++;
 				}
 
-				//ìŠ¤ìœ„ì¹˜ê·¸ë¦¬ê¸°
+				//½ºÀ§Ä¡±×¸®±â
 				if (GBInfo_B[2][y][x] == 's')
 				{
-					printf("â˜");
+					printf("¢Ï");
 
 					Switch_pos[sn].X = curPos.X;
 					Switch_pos[sn].Y = curPos.Y;
 					sn++;
 				}
 
-				//Bossê·¸ë¦¬ê¸°
+				//Boss±×¸®±â
 				if (GBInfo_B[2][y][x] == 'b')
 				{
 					Boss_pos.X = x * 2;
@@ -607,7 +607,7 @@ void Rotate_BossMap() //ë§µ ëŒë ¤ì£¼ëŠ” í•¨ìˆ˜
 	}
 
 
-	else if ((Switch_B % 4) == 3) // 135ë„ ì´ë™
+	else if ((Switch_B % 4) == 3) // 135µµ ÀÌµ¿
 	{
 
 		for (y = 0; y<B_GBOARD_HEIGHT; y++)
@@ -615,13 +615,13 @@ void Rotate_BossMap() //ë§µ ëŒë ¤ì£¼ëŠ” í•¨ìˆ˜
 			{
 				SetCurrentCursorPos((x * 2), y);
 
-				//ë²½ê·¸ë¦¬ê¸°
+				//º®±×¸®±â
 				if (GBInfo_B[3][y][x] == 1)
 				{
-					printf("â—†");
+					printf("¡ß");
 				}
 
-				//ë°˜ì‚¬ê²½ê·¸ë¦¬ê¸°
+				//¹İ»ç°æ±×¸®±â
 				if (GBInfo_B[3][y][x] == 'm')
 				{
 					printf("@");
@@ -631,17 +631,17 @@ void Rotate_BossMap() //ë§µ ëŒë ¤ì£¼ëŠ” í•¨ìˆ˜
 					mn++;
 				}
 
-				//ìŠ¤ìœ„ì¹˜ê·¸ë¦¬ê¸°
+				//½ºÀ§Ä¡±×¸®±â
 				if (GBInfo_B[3][y][x] == 's')
 				{
-					printf("â˜");
+					printf("¢Ï");
 
 					Switch_pos[sn].X = curPos.X;
 					Switch_pos[sn].Y = curPos.Y;
 					sn++;
 				}
 
-				//Bossê·¸ë¦¬ê¸°
+				//Boss±×¸®±â
 				if (GBInfo_B[3][y][x] == 'b')
 				{
 					Boss_pos.X = x * 2;
@@ -658,13 +658,13 @@ void Rotate_BossMap() //ë§µ ëŒë ¤ì£¼ëŠ” í•¨ìˆ˜
 
 	}
 
-	else if ((Switch_B % 4) == 0) //180ë„ ë¶€í„°ëŠ” ë‹¤ì‹œ ì²˜ìŒë¶€í„°!
+	else if ((Switch_B % 4) == 0) //180µµ ºÎÅÍ´Â ´Ù½Ã Ã³À½ºÎÅÍ!
 	{
 		drawGB_B(GBInfo_B[0]);
 	}
 }
 
-void deleteGB_B() //ë³´ìŠ¤ë§µ ì§€ìš°ëŠ” í•¨ìˆ˜
+void deleteGB_B() //º¸½º¸Ê Áö¿ì´Â ÇÔ¼ö
 {
 	for (int y = 0; y < B_GBOARD_HEIGHT; y++)
 	{
@@ -672,24 +672,24 @@ void deleteGB_B() //ë³´ìŠ¤ë§µ ì§€ìš°ëŠ” í•¨ìˆ˜
 		{
 			SetCurrentCursorPos((x * 2), y);
 
-			printf("ã€€");
+			printf("¡¡");
 		}
 	}
 }
 
-void DrawMap_Switch()	//ë§µì„ ê·¸ë¦¬ëŠ” í•¨ìˆ˜ - ìŠ¤ìœ„ì¹˜ì˜ ë³€í™”ì— ë”°ë¥¸ ë³€í™”ê¹Œì§€ ê·¸ë ¤ì¤Œ
+void DrawMap_Switch()	//¸ÊÀ» ±×¸®´Â ÇÔ¼ö - ½ºÀ§Ä¡ÀÇ º¯È­¿¡ µû¸¥ º¯È­±îÁö ±×·ÁÁÜ
 {
 	int x, y;
 
-	if (Switch_N && changeMap_Normal)//ì¼ë°˜ë§µì—ì„œ ìŠ¤ìœ„ì¹˜ë¥¼ ê±´ë“¤ì˜€ì„ë•Œ
+	if (Switch_N && changeMap_Normal)//ÀÏ¹İ¸Ê¿¡¼­ ½ºÀ§Ä¡¸¦ °Çµé¿´À»¶§
 	{
 
-		if (check_N == 0)//ìŠ¤ìœ„ì¹˜ ì²˜ìŒ ëˆŒë €ì„ë•Œ ì§€ìš°ì
+		if (check_N == 0)//½ºÀ§Ä¡ Ã³À½ ´­·¶À»¶§ Áö¿ìÀÚ
 		{
 			DeleteOb();
 		}
 		check_N++;
-		if (check_N == 11)//10ë²ˆ ë’¤ì— ë‹¤ì‹œ ëŒë¦¼
+		if (check_N == 11)//10¹ø µÚ¿¡ ´Ù½Ã µ¹¸²
 		{
 			MT_pos.Y == 28;
 			Switch_N = false;
@@ -699,21 +699,21 @@ void DrawMap_Switch()	//ë§µì„ ê·¸ë¦¬ëŠ” í•¨ìˆ˜ - ìŠ¤ìœ„ì¹˜ì˜ ë³€í™”ì— ë”°ë¥¸ 
 		}
 	}
 
-	if (changeMap_Boss)	//ë³´ìŠ¤ë§µ ê·¸ë¦¬ê¸°
+	if (changeMap_Boss)	//º¸½º¸Ê ±×¸®±â
 	{
-		if (check_B == 0)//ìŠ¤ìœ„ì¹˜ ì²˜ìŒ ëˆŒë €ì„ë•Œ ì§€ìš°ì
+		if (check_B == 0)//½ºÀ§Ä¡ Ã³À½ ´­·¶À»¶§ Áö¿ìÀÚ
 		{
 			DeleteOb();
 		}
 
 		check_B++;
 
-		if ((Switch_B % 4) == 0)//ë³´ìŠ¤ë§µ ëª¨ë¸ 4ê°œì¤‘ì— 0ë²ˆì§¸ ëª¨ë¸ ê·¸ë¦¬ê¸°
+		if ((Switch_B % 4) == 0)//º¸½º¸Ê ¸ğµ¨ 4°³Áß¿¡ 0¹øÂ° ¸ğµ¨ ±×¸®±â
 			drawGB_B(GBInfo_B[0]);
 		else
 			Rotate_BossMap();
 	}
-	else if (changeMap_Normal) 	//ì¼ë°˜ë§µ ê·¸ë¦¬ê¸°
+	else if (changeMap_Normal) 	//ÀÏ¹İ¸Ê ±×¸®±â
 	{
 
 		for (int y = 0; y < GBOARD_HEIGHT; y++)
@@ -736,15 +736,15 @@ void DrawMap_Switch()	//ë§µì„ ê·¸ë¦¬ëŠ” í•¨ìˆ˜ - ìŠ¤ìœ„ì¹˜ì˜ ë³€í™”ì— ë”°ë¥¸ 
 					SetCurrentCursorPos((x * 2), y);
 
 				if (GBInfo_N[y][x] == 1)
-					printf("â–²");
+					printf("¡ã");
 				if (GBInfo_N[y][x] == 2)
-					printf("â– ");
+					printf("¡á");
 				if (GBInfo_N[y][x] == 3)
-					printf("â˜…");
+					printf("¡Ú");
 				if (GBInfo_N[y][x] == 4)
-					printf("â™¨");
+					printf("¢Í");
 				else
-					printf("ã€€");
+					printf("¡¡");
 
 			}
 
@@ -753,16 +753,16 @@ void DrawMap_Switch()	//ë§µì„ ê·¸ë¦¬ëŠ” í•¨ìˆ˜ - ìŠ¤ìœ„ì¹˜ì˜ ë³€í™”ì— ë”°ë¥¸ 
 
 }
 
-void UpOB()	//ëŒì¶œ ì§€í˜•ì„ ì¼ì • ê°„ê²©ë§ˆë‹¤ ìœ„ë¡œ ì˜¬ë ¤ì£¼ëŠ” í•¨ìˆ˜ 
+void UpOB()	//µ¹Ãâ ÁöÇüÀ» ÀÏÁ¤ °£°İ¸¶´Ù À§·Î ¿Ã·ÁÁÖ´Â ÇÔ¼ö 
 {
 	int line, x, y;
 	for (y = 0; y < GBOARD_HEIGHT; y++)
 	{
-		memcpy(&GBInfo_N[y][1], &GBInfo_N[y + 1][1], GBOARD_WIDTH * sizeof(int));//ë‚´ì¥í•¨ìˆ˜,ë³µì‚¬í•  Â‹Âš ë§ì´ë“¤ ì‚¬ìš©
+		memcpy(&GBInfo_N[y][1], &GBInfo_N[y + 1][1], GBOARD_WIDTH * sizeof(int));//³»ÀåÇÔ¼ö,º¹»çÇÒ ‹š ¸¹ÀÌµé »ç¿ë
 	}
 }
 
-void MakeOb()	//ëŒì¶œ ì§€í˜•ì„ GBInfo_Nì— ìƒì„±í•´ì£¼ëŠ” í•¨ìˆ˜ 
+void MakeOb()	//µ¹Ãâ ÁöÇüÀ» GBInfo_N¿¡ »ı¼ºÇØÁÖ´Â ÇÔ¼ö 
 {
 	srand((unsigned int)time(NULL));
 	Check_Ob = (rand() % 6) * 2;
@@ -784,9 +784,9 @@ void DrawMT(char MeteoInfo[4][4]) {
 			else
 				SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
 			if (MeteoInfo[y][x] == 1)
-				printf("â—ˆ");
+				printf("¢Â");
 			if (MeteoInfo[y][x] == 2)
-				printf("Ëš");
+				printf("¢ª");
 		}
 	}
 	SetCurrentCursorPos(curPos.X, curPos.Y);
@@ -811,7 +811,7 @@ void DeleteMT(char MeteoInfo[4][4])
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
 
-int Shoot_MT() //showMTì˜ ì—­í™œ ë©”í…Œì˜¤ ì›€ì§ì—¬ì£¼ëŠ” ê²ƒ
+int Shoot_MT() //showMTÀÇ ¿ªÈ° ¸ŞÅ×¿À ¿òÁ÷¿©ÁÖ´Â °Í
 {
 	if (changeMap_Boss == false)
 	{
@@ -822,7 +822,7 @@ int Shoot_MT() //showMTì˜ ì—­í™œ ë©”í…Œì˜¤ ì›€ì§ì—¬ì£¼ëŠ” ê²ƒ
 		if (MT_pos.Y == 0) {
 
 			return 0;
-		} //yê°€ 1ì¼ë•Œ ë©”í…Œì˜¤ë¥¼ ë‹¤ì‹œ ì•„ë˜ë¶€í„° ê·¸ë ¤ì£¼ê¸°
+		} //y°¡ 1ÀÏ¶§ ¸ŞÅ×¿À¸¦ ´Ù½Ã ¾Æ·¡ºÎÅÍ ±×·ÁÁÖ±â
 
 		if (DetectCollision_Meteo(curPos.X, curPos.Y + 1, MeteoInfo[0]) == 0)
 		{
@@ -842,49 +842,49 @@ int Shoot_MT() //showMTì˜ ì—­í™œ ë©”í…Œì˜¤ ì›€ì§ì—¬ì£¼ëŠ” ê²ƒ
 }
 
 
-void isB_Clear()//í´ë¦¬ì–´(ë³´ìŠ¤)
+void isB_Clear()//Å¬¸®¾î(º¸½º)
 {
 	SetCurrentCursorPos(30, 10);
-	printf("Stage %d ë³´ìŠ¤ë§µ í´ë¦¬ì–´", checkStage);	//ì¼ë‹¨ ì¶œë ¥
+	printf("Stage %d º¸½º¸Ê Å¬¸®¾î", checkStage);	//ÀÏ´Ü Ãâ·Â
 	Sleep(1000);
 
-	if (checkStage == 4)	//4íƒ„ í´ë¦¬ì–´
+	if (checkStage == 4)	//4Åº Å¬¸®¾î
 	{
 		SetCurrentCursorPos(30, 11);
-		printf("Stage %d í´ë¦¬ì–´", checkStage);	//ì¼ë‹¨ ì¶œë ¥
+		printf("Stage %d Å¬¸®¾î", checkStage);	//ÀÏ´Ü Ãâ·Â
 		Sleep(1000);
 
 		printf("Game Clear!!");
 		Sleep(1000);
 
-		//ë­í‚¹í•¨ìˆ˜ ì—¬ê¸°ì—ë‹¤ ë†“ìœ¼ì‹œë©´ ë˜ì‹œê³ ìš”~
+		//·©Å·ÇÔ¼ö ¿©±â¿¡´Ù ³õÀ¸½Ã¸é µÇ½Ã°í¿ä~
 	}
 
 	else
 	{
 		SetCurrentCursorPos(30, 11);
-		printf("Stage %d í´ë¦¬ì–´", checkStage);	//ì¼ë‹¨ ì¶œë ¥
+		printf("Stage %d Å¬¸®¾î", checkStage);	//ÀÏ´Ü Ãâ·Â
 		Sleep(1000);
 
 		SetCurrentCursorPos(30, 12);
-		printf("ë‹¤ìŒ Stage ê³„ì†...!");
+		printf("´ÙÀ½ Stage °è¼Ó...!");
 		Sleep(1000);
 
-		deleteGB_B();	//ë³´ìŠ¤ë§µ ì§€ìš°ê¸°
+		deleteGB_B();	//º¸½º¸Ê Áö¿ì±â
 
-		checkStage++;	//íƒ„ ìˆ˜ ì˜¬ë¦¬ê¸°
-		changeMap_Boss = false;	//ë³´ìŠ¤ë§µ ë„ê¸°
-		changeMap_Normal = true;	//ì¼ë°˜ë§µ ì¼œê¸°
+		checkStage++;	//Åº ¼ö ¿Ã¸®±â
+		changeMap_Boss = false;	//º¸½º¸Ê ²ô±â
+		changeMap_Normal = true;	//ÀÏ¹İ¸Ê ÄÑ±â
 
 	}
 
 }
 
-int Physical_PC(int maxLife)	//ì²´ë ¥í•¨ìˆ˜(ìºë¦­í„°ì˜ ìµœëŒ€ ì²´ë ¥ì„ ë°›ì•„ì„œ í˜„ì¬ ì²´ë ¥ì„ ë¦¬í„´)
+int Physical_PC(int maxLife)	//Ã¼·ÂÇÔ¼ö(Ä³¸¯ÅÍÀÇ ÃÖ´ë Ã¼·ÂÀ» ¹Ş¾Æ¼­ ÇöÀç Ã¼·ÂÀ» ¸®ÅÏ)
 {
 	static int nowLife = maxLife;
 
-	if (nowLife == 0)	//ì²´ë ¥ì´ 0ì¼ë•Œ game over
+	if (nowLife == 0)	//Ã¼·ÂÀÌ 0ÀÏ¶§ game over
 	{
 		SetCurrentCursorPos(30, 0);
 
@@ -893,41 +893,41 @@ int Physical_PC(int maxLife)	//ì²´ë ¥í•¨ìˆ˜(ìºë¦­í„°ì˜ ìµœëŒ€ ì²´ë ¥ì„ ë°›ì•„
 		getchar();
 		exit(0);
 	}
-	else if (attacked && attacked_Boss)//ë³´ìŠ¤ ë§µì—ì„œ ë³´ìŠ¤ì—ê²Œ ì•„íŒ ì„ë•Œ
+	else if (attacked && attacked_Boss)//º¸½º ¸Ê¿¡¼­ º¸½º¿¡°Ô ¾ÆÆÍÀ»¶§
 		nowLife -= 2;
 
-	else if (attacked && attacked_Boss == false)	//ì•„íŒ ì„ë•Œ
+	else if (attacked && attacked_Boss == false)	//¾ÆÆÍÀ»¶§
 		nowLife--;
 
-	attacked = false;	//ë‹¤ì‹œ attackedì„ false (ì›ìƒíƒœ)ë¡œ ëŒë ¤ì¤€ë‹¤.
-	return nowLife;	//í˜„ì¬ ì²´ë ¥ì„ ë¦¬í„´í•œë‹¤.
+	attacked = false;	//´Ù½Ã attackedÀ» false (¿ø»óÅÂ)·Î µ¹·ÁÁØ´Ù.
+	return nowLife;	//ÇöÀç Ã¼·ÂÀ» ¸®ÅÏÇÑ´Ù.
 
 }
 
-int Physical_Boss(int maxLife)	//ì²´ë ¥í•¨ìˆ˜(ìºë¦­í„°ì˜ ìµœëŒ€ ì²´ë ¥ì„ ë°›ì•„ì„œ í˜„ì¬ ì²´ë ¥ì„ ë¦¬í„´)
+int Physical_Boss(int maxLife)	//Ã¼·ÂÇÔ¼ö(Ä³¸¯ÅÍÀÇ ÃÖ´ë Ã¼·ÂÀ» ¹Ş¾Æ¼­ ÇöÀç Ã¼·ÂÀ» ¸®ÅÏ)
 {
 	static int nowLife = maxLife;
 
-	if (nowLife == 0)	//ì²´ë ¥ì´ 0ì¼ë•Œ game over
+	if (nowLife == 0)	//Ã¼·ÂÀÌ 0ÀÏ¶§ game over
 	{
 		isB_Clear();
 	}
 
-	//else if (attacked && attacked_Boss == false)	//ì•„íŒ ì„ë•Œ	//ë ˆì´ì € ìˆ˜ì • ë°›ì•„ì•¼ í• ë“¯	//ê·¸ë˜ì„œ ì¼ë‹¨ ê³„ì† ê°ì†Œí•˜ë„ë¡í–ˆìŒ
+	//else if (attacked && attacked_Boss == false)	//¾ÆÆÍÀ»¶§	//·¹ÀÌÀú ¼öÁ¤ ¹Ş¾Æ¾ß ÇÒµí	//±×·¡¼­ ÀÏ´Ü °è¼Ó °¨¼ÒÇÏµµ·ÏÇßÀ½
 	//nowLife--;
 
-	attacked = false;	//ë‹¤ì‹œ attackedì„ false (ì›ìƒíƒœ)ë¡œ ëŒë ¤ì¤€ë‹¤.
-	return nowLife;	//í˜„ì¬ ì²´ë ¥ì„ ë¦¬í„´í•œë‹¤.
+	attacked = false;	//´Ù½Ã attackedÀ» false (¿ø»óÅÂ)·Î µ¹·ÁÁØ´Ù.
+	return nowLife;	//ÇöÀç Ã¼·ÂÀ» ¸®ÅÏÇÑ´Ù.
 
 }
 
-int isCrash(int posX, int posY, char PCInfo[4][4], char GBInfo_B[31][31])	//ì¶©ëŒ í•¨ìˆ˜
+int isCrash(int posX, int posY, char PCInfo[4][4], char GBInfo_B[31][31])	//Ãæµ¹ ÇÔ¼ö
 {
 	int x, y;
 	int arrX = (posX) / 2;
 	int arrY = posY;
 
-	if (Switch_N)	//ì¼ë°˜ë§µì—ì„œ ìŠ¤ìœ„ì¹˜ ì¼ë•Œ
+	if (Switch_N)	//ÀÏ¹İ¸Ê¿¡¼­ ½ºÀ§Ä¡ ÀÏ¶§
 	{
 		arrX = posY + 1;
 		arrY = posX / 2 - 1;
@@ -936,18 +936,18 @@ int isCrash(int posX, int posY, char PCInfo[4][4], char GBInfo_B[31][31])	//ì¶©ë
 	{
 		for (y = 0; y<4; y++)
 		{
-			///ì¼ë°˜ë§µ
-			if (PCInfo[y][x] == 1 && changeMap_Normal == true && Switch_N == false)	//pcê°€ 1ì´ê³ , ì¼ë°˜ë§µ ë§ê³ , ìŠ¤ìœ„ì¹˜ëŠ” ì•„ë‹˜
+			///ÀÏ¹İ¸Ê
+			if (PCInfo[y][x] == 1 && changeMap_Normal == true && Switch_N == false)	//pc°¡ 1ÀÌ°í, ÀÏ¹İ¸Ê ¸Â°í, ½ºÀ§Ä¡´Â ¾Æ´Ô
 			{
-				if (GBInfo_N[arrY + y][arrX + x] == 2)	//ë²½ì´ë‘ ë¶€ë”ªí˜”ì„ë•Œ
+				if (GBInfo_N[arrY + y][arrX + x] == 2)	//º®ÀÌ¶û ºÎµúÇûÀ»¶§
 					return 0;
 
-				if (GBInfo_N[arrY + y][arrX + x] == 1)	//ì¥ì• ë¬¼ì´ë‘ ë¶€ë”ªí˜”ì„ë•Œ
+				if (GBInfo_N[arrY + y][arrX + x] == 1)	//Àå¾Ö¹°ÀÌ¶û ºÎµúÇûÀ»¶§
 				{
 					attacked = true;
 					return 0;
 				}
-				if (GBInfo_N[arrY + y][arrX + x] == 3)	//ì¼ë°˜ë§µ ìŠ¤ìœ„ì¹˜
+				if (GBInfo_N[arrY + y][arrX + x] == 3)	//ÀÏ¹İ¸Ê ½ºÀ§Ä¡
 				{
 					Switch_N = true;
 					deletePC(PCInfo);
@@ -957,31 +957,31 @@ int isCrash(int posX, int posY, char PCInfo[4][4], char GBInfo_B[31][31])	//ì¶©ë
 					return 0;
 				}
 
-				if ((PC_pos.X == MT_pos.X) && ((PC_pos.Y + 3 == MT_pos.Y) || (PC_pos.Y + 2 == MT_pos.Y) || (PC_pos.Y + 1 == MT_pos.Y)))	//ìš´ì„ ì¶©ëŒ (ì„œë¡œ ëš«ê³  ì§€ë‚˜ê°)
+				if ((PC_pos.X == MT_pos.X) && ((PC_pos.Y + 3 == MT_pos.Y) || (PC_pos.Y + 2 == MT_pos.Y) || (PC_pos.Y + 1 == MT_pos.Y)))	//¿î¼® Ãæµ¹ (¼­·Î ¶Õ°í Áö³ª°¨)
 				{
 					attacked = true;
 					DeleteMT(MeteoInfo[0]);
 					MT_pos.Y = 0;
-				} //ì¶©ëŒì‹œ 1ë¡œ ëŒì•„ê°€ì„œ int mainë¬¸ì˜ ì¡°ê±´ì„±ë¦½ -> yê°€ 1ì¼ë•Œ ì¬ìƒì„±
+				} //Ãæµ¹½Ã 1·Î µ¹¾Æ°¡¼­ int main¹®ÀÇ Á¶°Ç¼º¸³ -> y°¡ 1ÀÏ¶§ Àç»ı¼º
 
 
 			}
 
-			///ì „í™˜ë§µ
-			if (PCInfo[x][y] == 1 && changeMap_Normal == true && Switch_N == true)	//pcê°€ 1ì´ê³ , ì¼ë°˜ë§µ ë§ê³ , ìŠ¤ìœ„ì¹˜ëŠ” ë§ìŒ
+			///ÀüÈ¯¸Ê
+			if (PCInfo[x][y] == 1 && changeMap_Normal == true && Switch_N == true)	//pc°¡ 1ÀÌ°í, ÀÏ¹İ¸Ê ¸Â°í, ½ºÀ§Ä¡´Â ¸ÂÀ½
 			{
 
-				if (GBInfo_N[arrY + y + 1][arrX + x - 1] == 2)	//ë²½ì´ë‘ ë¶€ë”ªí˜”ì„ë•Œ
+				if (GBInfo_N[arrY + y + 1][arrX + x - 1] == 2)	//º®ÀÌ¶û ºÎµúÇûÀ»¶§
 					return 0;
 
-				if (GBInfo_N[arrY + y + 1][arrX + x - 1] == 1)	//ì¥ì• ë¬¼ì´ë‘ ë¶€ë”ªí˜”ì„ë•Œ
+				if (GBInfo_N[arrY + y + 1][arrX + x - 1] == 1)	//Àå¾Ö¹°ÀÌ¶û ºÎµúÇûÀ»¶§
 				{
 					attacked = true;
 					return 0;
 				}
 
 
-				if (((PC_pos.Y == MT_pos.X) || (PC_pos.Y + 1 == MT_pos.X)) && ((PC_pos.X + 3 == MT_pos.Y) || (PC_pos.X + 2 == MT_pos.Y) || (PC_pos.X + 1 == MT_pos.Y)))	//ìš´ì„ ì¶©ëŒ (ì„œë¡œ ëš«ê³  ì§€ë‚˜ê°)
+				if (((PC_pos.Y == MT_pos.X) || (PC_pos.Y + 1 == MT_pos.X)) && ((PC_pos.X + 3 == MT_pos.Y) || (PC_pos.X + 2 == MT_pos.Y) || (PC_pos.X + 1 == MT_pos.Y)))	//¿î¼® Ãæµ¹ (¼­·Î ¶Õ°í Áö³ª°¨)
 				{
 					attacked = true;
 					DeleteMT(MeteoInfo[0]);
@@ -990,21 +990,21 @@ int isCrash(int posX, int posY, char PCInfo[4][4], char GBInfo_B[31][31])	//ì¶©ë
 
 			}
 
-			//ë³´ìŠ¤ ë§µ
-			if (PCInfo[y][x] == 1 && changeMap_Normal == false && changeMap_Boss == true)//ì¼ë°˜ë§µ ì•„ë‹ˆê³ , ë³´ìŠ¤ ë§µì€ ë§ìŒ
+			//º¸½º ¸Ê
+			if (PCInfo[y][x] == 1 && changeMap_Normal == false && changeMap_Boss == true)//ÀÏ¹İ¸Ê ¾Æ´Ï°í, º¸½º ¸ÊÀº ¸ÂÀ½
 			{
-				if (GBInfo_B[arrY + y][arrX + x] == 1)	//ë²½ì´ë‘ ë¶€ë”ªí˜”ì„ë•Œ
+				if (GBInfo_B[arrY + y][arrX + x] == 1)	//º®ÀÌ¶û ºÎµúÇûÀ»¶§
 				{
 					return 0;
 				}
 
-				if (GBInfo_B[arrY + y][arrX + x] == 'm')	//ê±°ìš¸ì´ë‘ ë¶€ë”ªí˜”ì„ë•Œ
+				if (GBInfo_B[arrY + y][arrX + x] == 'm')	//°Å¿ïÀÌ¶û ºÎµúÇûÀ»¶§
 				{
-					//printf("ê±°ìš¸");
+					//printf("°Å¿ï");
 					return 0;
 				}
 
-				if (GBInfo_B[arrY + y][arrX + x] == 's')	//ìŠ¤ìœ„ì¹˜ë‘ ë¶€ë”ªí˜”ì„ë•Œ
+				if (GBInfo_B[arrY + y][arrX + x] == 's')	//½ºÀ§Ä¡¶û ºÎµúÇûÀ»¶§
 				{
 					Switch_B++;
 					check_B = 0;
@@ -1021,14 +1021,14 @@ int isCrash(int posX, int posY, char PCInfo[4][4], char GBInfo_B[31][31])	//ì¶©ë
 
 				//if (Boss_pos.X == PC_pos.X &&Boss_pos.Y + 3 + count == PC_pos.Y);
 				//{
-				//	//printf("ë ˆì´ì €");
+				//	//printf("·¹ÀÌÀú");
 
 
 				//}
 
 
 
-				if ((PC_pos.Y == MT_pos.X) && ((PC_pos.X + 3 == MT_pos.Y) || (PC_pos.X + 2 == MT_pos.Y) || (PC_pos.X + 1 == MT_pos.Y)))	//ìš´ì„ ì¶©ëŒ (ì„œë¡œ ëš«ê³  ì§€ë‚˜ê°)
+				if ((PC_pos.Y == MT_pos.X) && ((PC_pos.X + 3 == MT_pos.Y) || (PC_pos.X + 2 == MT_pos.Y) || (PC_pos.X + 1 == MT_pos.Y)))	//¿î¼® Ãæµ¹ (¼­·Î ¶Õ°í Áö³ª°¨)
 				{
 					attacked = true;
 				}
@@ -1043,9 +1043,9 @@ int isCrash(int posX, int posY, char PCInfo[4][4], char GBInfo_B[31][31])	//ì¶©ë
 
 int ShiftRight()
 {
-	if (isCrash(PC_pos.X + 2, PC_pos.Y, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0)//ë¶€ë”ªí˜
+	if (isCrash(PC_pos.X + 2, PC_pos.Y, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0)//ºÎµúÈû
 	{
-		if (changeMap_Normal == true && changeMap_Boss == false && Switch_N == true)	//ì „í™˜ë§µì—ì„œ ë¶€ë”ªí˜(ë°€ë¦¼)
+		if (changeMap_Normal == true && changeMap_Boss == false && Switch_N == true)	//ÀüÈ¯¸Ê¿¡¼­ ºÎµúÈû(¹Ğ¸²)
 		{
 			PC_pos.X -= 2;
 			Sleep(50);
@@ -1062,7 +1062,7 @@ int ShiftRight()
 }
 int ShiftLeft()
 {
-	if (isCrash(PC_pos.X - 2, PC_pos.Y, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0)//ë¶€ë”ªí˜
+	if (isCrash(PC_pos.X - 2, PC_pos.Y, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0)//ºÎµúÈû
 		return 0;
 	deletePC(PCInfo[0]);
 	PC_pos.X -= 2;
@@ -1074,7 +1074,7 @@ int ShiftLeft()
 
 int Jump()
 {
-	if (isCrash(PC_pos.X, PC_pos.Y - 1, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0 || PC_pos.Y == 0)//ë¶€ë”ªí˜
+	if (isCrash(PC_pos.X, PC_pos.Y - 1, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0 || PC_pos.Y == 0)//ºÎµúÈû
 		return 0;
 	deletePC(PCInfo[0]);
 	PC_pos.Y -= 1;
@@ -1087,23 +1087,23 @@ int Jump()
 
 int Gravity_N()
 {
-	if (isCrash(PC_pos.X, PC_pos.Y + 1, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0 && changeMap_Normal == true && changeMap_Boss == false && Switch_N == false)	//ë¶€ë”ªí˜	//ì¼ë°˜ë§µ ì˜¬ë¼ì˜¤ëŠ” ë²½	//ìŠ¤ìœ„ì¹˜ X
+	if (isCrash(PC_pos.X, PC_pos.Y + 1, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0 && changeMap_Normal == true && changeMap_Boss == false && Switch_N == false)	//ºÎµúÈû	//ÀÏ¹İ¸Ê ¿Ã¶ó¿À´Â º®	//½ºÀ§Ä¡ X
 	{
 		PC_pos.Y -= 1;
 		return 0;
 	}
 
-	if (isCrash(PC_pos.X, PC_pos.Y + 1, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0 && changeMap_Normal == true && changeMap_Boss == false && Switch_N == true)	//ë¶€ë”ªí˜	//ì „í™˜ë§µ ì•„ë˜ ë²½//ìŠ¤ìœ„ì¹˜ O
+	if (isCrash(PC_pos.X, PC_pos.Y + 1, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0 && changeMap_Normal == true && changeMap_Boss == false && Switch_N == true)	//ºÎµúÈû	//ÀüÈ¯¸Ê ¾Æ·¡ º®//½ºÀ§Ä¡ O
 		return 0;
 
-	else if (isCrash(PC_pos.X + 2, PC_pos.Y + 1, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0 && changeMap_Normal == true && changeMap_Boss == false && Switch_N == true)//ë¶€ë”ªí˜	//ì „í™˜ë§µ ì˜†ìœ¼ë¡œ ë‹¤ê°€ì˜¤ëŠ” ë²½//ìŠ¤ìœ„ì¹˜ O
+	else if (isCrash(PC_pos.X + 2, PC_pos.Y + 1, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0 && changeMap_Normal == true && changeMap_Boss == false && Switch_N == true)//ºÎµúÈû	//ÀüÈ¯¸Ê ¿·À¸·Î ´Ù°¡¿À´Â º®//½ºÀ§Ä¡ O
 	{
 		PC_pos.X -= 2;
 		PC_pos.Y += 1;
 		return 0;
 	}
 
-	if (isCrash(PC_pos.X, PC_pos.Y + 1, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0 && changeMap_Normal == false && changeMap_Boss == true)//ë¶€ë”ªí˜		//ë³´ìŠ¤ë§µ	O	//GBInfo_B[Switch_B % 4]ì—ì„œ Switch_B % 4ëŠ” ë³´ìŠ¤ë§µ ëª¨ë¸ ë²ˆí˜¸ì„
+	if (isCrash(PC_pos.X, PC_pos.Y + 1, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0 && changeMap_Normal == false && changeMap_Boss == true)//ºÎµúÈû		//º¸½º¸Ê	O	//GBInfo_B[Switch_B % 4]¿¡¼­ Switch_B % 4´Â º¸½º¸Ê ¸ğµ¨ ¹øÈ£ÀÓ
 		return 0;
 
 	if (Switch_B % 2 == 1)
@@ -1129,20 +1129,20 @@ int Gravity_N()
 	return 1;
 }
 
-void isN_clear()//í´ë¦¬ì–´(ì¼ë°˜)
+void isN_clear()//Å¬¸®¾î(ÀÏ¹İ)
 {
 	SetCurrentCursorPos(30, 10);
-	printf("Stage %d ì¼ë°˜ë§µ í´ë¦¬ì–´", checkStage);	//ì¼ë‹¨ ì¶œë ¥
+	printf("Stage %d ÀÏ¹İ¸Ê Å¬¸®¾î", checkStage);	//ÀÏ´Ü Ãâ·Â
 	Sleep(1000);
 
 
-	check_B = 0;//ì½˜ì†”ì°½ í•œë²ˆ ì§€ì›Œì£¼ê¸° ìœ„í•´ì„œ 
-	deleteGB_B();	//stage ê¸€ì ì•ˆì§€ì›Œì ¸ì„œ ì§€ìš°ë ¤ê³  
-	changeMap_Normal = false;//ì¼ë°˜ë§µ ì•„ë‹˜
-	changeMap_Boss = true;//ë³´ìŠ¤ë§µ ë§ìŒ
-	PC_pos.Y = 10;//PCìœ„ì¹˜ ì˜®ê²¨ì¤Œ
+	check_B = 0;//ÄÜ¼ÖÃ¢ ÇÑ¹ø Áö¿öÁÖ±â À§ÇØ¼­ 
+	deleteGB_B();	//stage ±ÛÀÚ ¾ÈÁö¿öÁ®¼­ Áö¿ì·Á°í 
+	changeMap_Normal = false;//ÀÏ¹İ¸Ê ¾Æ´Ô
+	changeMap_Boss = true;//º¸½º¸Ê ¸ÂÀ½
+	PC_pos.Y = 10;//PCÀ§Ä¡ ¿Å°ÜÁÜ
 
-	Physical_Boss(BossLife);	// íƒ„ë§ˆë‹¤ ë³´ìŠ¤ ì²´ë ¥ ë‹¤ë¥´ê²Œ í•´ì¤Œ
+	Physical_Boss(BossLife);	// Åº¸¶´Ù º¸½º Ã¼·Â ´Ù¸£°Ô ÇØÁÜ
 
 }
 
@@ -1168,10 +1168,10 @@ void ProcessKeyInput()
 			case SPACE:
 				Jump();
 				break;
-			case '1':	//ì¶”ê°€
+			case '1':	//Ãß°¡
 				Switch_N = true;
 				break;
-			case '2': //íƒ­ ì¶”ê°€
+			case '2': //ÅÇ Ãß°¡
 				Switch_B++;
 				check_B = 0;
 				if (Switch_B % 2 == 0)
@@ -1193,7 +1193,7 @@ void ProcessKeyInput()
 int main(void)
 {
 	srand((unsigned int)time(NULL));
-	L = (rand() % 4) + 1;	//ë ˆì´ì € ëª¨ë¸ ì„ íƒ
+	L = (rand() % 4) + 1;	//·¹ÀÌÀú ¸ğµ¨ ¼±ÅÃ
 
 	RemoveCursor();
 	DrawMap_Switch();
@@ -1220,9 +1220,9 @@ int main(void)
 		ProcessKeyInput();
 
 		SetCurrentCursorPos(62, 0);
-		printf("PC ì²´ë ¥: %3d", Physical_PC(PCLife));
+		printf("PC Ã¼·Â: %3d", Physical_PC(PCLife));
 		SetCurrentCursorPos(62, 1);
-		printf("Boss ì²´ë ¥: %3d", Physical_Boss(BossLife));
+		printf("Boss Ã¼·Â: %3d", Physical_Boss(BossLife));
 
 		SetCurrentCursorPos(62, 3);
 		printf("PC : %3d, %3d", PC_pos.X, PC_pos.Y);
@@ -1257,7 +1257,7 @@ int main(void)
 
 
 
-		if (changeMap_Normal == true && changeMap_Boss == false)	//ì¼ë°˜ë§µ O	ì¼ë•Œ//ë³´ìŠ¤ë§µ X
+		if (changeMap_Normal == true && changeMap_Boss == false)	//ÀÏ¹İ¸Ê O	ÀÏ¶§//º¸½º¸Ê X
 		{
 			if (ObTime % 6 == 0)
 				MakeOb();
@@ -1271,13 +1271,13 @@ int main(void)
 			DrawSk();*/
 		}
 
-		if (changeMap_Normal == true && changeMap_Boss == false && ObTime == 2)	//5ë²ˆì§¸ ì¤„ì¼ ë•Œ í´ë¦¬ì–´(ì¼ë°˜) ->ì¤„ ìˆ˜ ë°”ê¿”ì•¼í•¨
+		if (changeMap_Normal == true && changeMap_Boss == false && ObTime == 5)	//5¹øÂ° ÁÙÀÏ ¶§ Å¬¸®¾î(ÀÏ¹İ) ->ÁÙ ¼ö ¹Ù²ã¾ßÇÔ
 			isN_clear();
 
-		if (changeMap_Normal == false && changeMap_Boss == true && check_B>0)	//ë ˆì´ì €ë¥¼ ì˜Y	//check_BëŠ” ë³´ìŠ¤ë§µì„ ë‹¤ ê·¸ë¦¬ê³ ì„œ ë ˆì´ì €ë¥¼ ì˜ë ¤ê³ 
+		if (changeMap_Normal == false && changeMap_Boss == true && check_B>0)	//·¹ÀÌÀú¸¦ ½î Y	//check_B´Â º¸½º¸ÊÀ» ´Ù ±×¸®°í¼­ ·¹ÀÌÀú¸¦ ½î·Á°í
 		{
-			ShootLaser();//ë ˆì´ì €ë¥¼ ì˜ëŠ” í•¨ìˆ˜ (Draw & Delete)
-			B_time++;//ë³´ìŠ¤ë§µ ê²½ê³¼ ì‹œê°„ ì¦ê°€ì‹œí‚¤ê¸°
+			ShootLaser();//·¹ÀÌÀú¸¦ ½î´Â ÇÔ¼ö (Draw & Delete)
+			B_time++;//º¸½º¸Ê °æ°ú ½Ã°£ Áõ°¡½ÃÅ°±â
 		}
 
 		SetCurrentCursorPos(62, 12);
