@@ -31,7 +31,11 @@ int speed = 30;
 int check = 0; // 스위치후 delete
 int PCLife = 30;	//PC의 체력
 
-int ObTime = 0;	//올라가는 간격	(장애물과 장애물사이 간격)
+int ObTime_o = 0;//올라가는 간격	(장애물과 장애물사이 간격)
+int ObTime_t = 3;//올라가는 간격
+//장애물이 단조로워서 두번 그리게 바꿔봄
+
+
 int Check_Ob = 0;	//돌출된 지형 만들어지는 X좌표
 int Ran;	//돌출된 지형 길이
 
@@ -705,10 +709,10 @@ void DrawMap_Switch()	//맵을 그리는 함수 - 스위치의 변화에 따른 변화까지 그려줌
 		if (check_N == 0)//스위치 처음 눌렀을때 지우자
 		{
 			deleteGB_N();
-			MT_pos.X == 28;
-			MT_pos.Y == 15;
+			
 		}
 		check_N++;
+
 		if (check_N == 11)//10번 뒤에 다시 돌림
 		{
 			deleteGB_N();
@@ -717,6 +721,7 @@ void DrawMap_Switch()	//맵을 그리는 함수 - 스위치의 변화에 따른 변화까지 그려줌
 			Switch_N = false;
 			MT_pos.X == 15;
 			MT_pos.Y == 24;
+			SetCurrentCursorPos(MT_pos.X, MT_pos.Y);
 		}
 	}
 
@@ -785,11 +790,21 @@ void UpOB()	//돌출 지형을 일정 간격마다 위로 올려주는 함수
 	}
 }
 
-void MakeOb()	//돌출 지형을 GBInfo_N에 생성해주는 함수 
+void MakeOb_one()	//돌출 지형을 GBInfo_N에 생성해주는 함수 
 {
 	srand((unsigned int)time(NULL));
-	Check_Ob = (rand() % 6) * 2 + 2; // 1~23
-	Ran = (rand() % 8) * 2 + 4*2 ;
+	Check_Ob = (rand() % 10); // 1~23    
+	Ran = (rand() % 8)  + 4 ;
+
+	for (int x = Check_Ob; x < Check_Ob + Ran; x++)
+		GBInfo_N[27][x] = 1;
+}
+
+void MakeOb_two()	//돌출 지형을 GBInfo_N에 생성해주는 함수 
+{
+	srand((unsigned int)time(NULL));
+	Check_Ob = (rand() % 20) + 10; // 1~23    
+	Ran = (rand() % 8) + 4;
 
 	for (int x = Check_Ob; x < Check_Ob + Ran; x++)
 		GBInfo_N[27][x] = 1;
@@ -973,8 +988,8 @@ int isCrash(int posX, int posY, char PCInfo[4][4], char GBInfo_B[31][31])	//충돌
 					Switch_N = true;
 					deletePC(PCInfo);
 					PC_pos.Y = 13;
-					MT_pos.X = 28;
-					MT_pos.Y = 3;
+					MT_pos.X == 28;
+					MT_pos.Y == 15;
 					return 0;
 				}
 
@@ -1262,7 +1277,8 @@ int main(void)
 
 		}
 		DrawMap_Switch();
-		ObTime++;
+		ObTime_o++;
+		ObTime_t++;
 
 		SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
 		drawPC(PCInfo[0]);
@@ -1310,10 +1326,13 @@ int main(void)
 
 		if (changeMap_Normal == true && changeMap_Boss == false && clear_N == false)	//일반맵 O	일때//보스맵 X
 		{
-			if (ObTime % 6 == 0) //돌출지형 간격 조건문
-				MakeOb();
+			if (ObTime_o % 9 == 0) //돌출지형 간격 조건문
+				MakeOb_one();
 
-			if (ObTime == 5) // 스위치 호출 조건문 ( 임시 )
+			if (ObTime_t % 4 == 0)
+				MakeOb_two();
+
+			if (ObTime_t == 5) // 스위치 호출 조건문 ( 임시 )
 			{
 				GBInfo_N[10][3] = 3;
 			}
@@ -1322,7 +1341,7 @@ int main(void)
 			DrawSk();*/
 		}
 
-		if (changeMap_Normal == true && changeMap_Boss == false && ObTime == 50)
+		if (changeMap_Normal == true && changeMap_Boss == false && ObTime_o == 50)
 		{
 			clear_N = true;
 			DrawClear_N();
