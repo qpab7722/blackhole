@@ -680,6 +680,21 @@ void deleteGB_B() //보스맵 지우는 함수
 	}
 }
 
+void deleteGB_N() //일반맵 지우는 함수
+{
+
+		for (int y = 0; y < GBOARD_HEIGHT; y++)
+		{
+			for (int x = 0; x < GBOARD_HEIGHT; x++)
+			{
+				SetCurrentCursorPos((x * 2), y);
+
+				printf("　");
+			}
+		}
+	
+}
+
 void DrawMap_Switch()	//맵을 그리는 함수 - 스위치의 변화에 따른 변화까지 그려줌
 {
 	int x, y;
@@ -689,15 +704,19 @@ void DrawMap_Switch()	//맵을 그리는 함수 - 스위치의 변화에 따른 변화까지 그려줌
 
 		if (check_N == 0)//스위치 처음 눌렀을때 지우자
 		{
-			DeleteOb();
+			deleteGB_N();
+			MT_pos.X == 28;
+			MT_pos.Y == 15;
 		}
 		check_N++;
 		if (check_N == 11)//10번 뒤에 다시 돌림
 		{
-			MT_pos.Y == 28;
+			deleteGB_N();
 			starttime = 0;
 			check_N = 0;
 			Switch_N = false;
+			MT_pos.X == 15;
+			MT_pos.Y == 24;
 		}
 	}
 
@@ -1154,7 +1173,7 @@ void DrawClear_N()
 	{
 		for (int x = 0; x < GBOARD_WIDTH; x++)
 		{
-			if (y != GBOARD_HEIGHT - 1)
+			if (y > GBOARD_HEIGHT - 8 && y != GBOARD_HEIGHT - 1)
 				GBInfo_N[y][x] = 0;
 			else if (y == GBOARD_HEIGHT - 1)
 			{
@@ -1221,6 +1240,17 @@ int main(void)
 	MT_pos.Y = 28;
 	MT_pos.X = (rand() % 5) * 2 + 10;
 
+	srand((unsigned int)time(NULL));
+	Check_Ob = (rand() % 6) * 2 + 2; // 1~23
+	Ran = (rand() % 8) * 2 + 4 * 2;
+
+	for (int x = Check_Ob; x < Check_Ob + Ran; x++)
+	{
+		GBInfo_N[18][x+4] = 1;
+		GBInfo_N[24][x+7] = 1;
+	} //처음 시작시 화면에 강제로 돌출지형 그려주는 것, 시작부터 장애물 채우고 시작!
+	
+
 	while (1)
 	{
 
@@ -1268,12 +1298,12 @@ int main(void)
 
 		if (!Shoot_MT() && Switch_N == false) {
 			MT_pos.X = (rand() % 20) * 2 +2;
-			MT_pos.Y = 28;
+			MT_pos.Y = 26;
 		}
 
 		else if (!Shoot_MT() && Switch_N == true) {
 			MT_pos.X = (rand() % 20);
-			MT_pos.Y = 28 * 2;
+			MT_pos.Y = 26 * 2;
 		}
 
 
