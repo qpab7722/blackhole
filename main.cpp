@@ -43,8 +43,8 @@ bool attacked = false;	//공격받았는지 알려주는 변수
 bool Switch_N = false; //스위치 충돌 알려주는 변수
 int Switch_B = 0;//보스맵 스위치 눌릴 때 마다 각도 조절해주는 변수 (맵 모델 선택 4개)
 
-bool changeMap_Boss = true;//보스맵 전환 신호
-bool changeMap_Normal = false;//일반맵 전환 신호
+bool changeMap_Boss = false;//true;//보스맵 전환 신호
+bool changeMap_Normal = true;//false;//일반맵 전환 신호
 bool attacked_Boss = false;	//보스에게 공격 받았는지 알려주는 변수
 
 int L;//레이저 모델 번호
@@ -62,6 +62,9 @@ bool clear_N = false; //노말맵 도착점 위해 호출 변수
 int len; //레이저 길이
 int count;//레이저 이동 (ShootLaser에 있던 i를 바꿈)
 int StoreBoard[B_GBOARD_HEIGHT][B_GBOARD_WIDTH];	//레이저와 보스를 임시로 저장(움직여서 비교 못해서)
+
+bool ba = false;//랭크 테스트 용
+bool gameover = false;// 블랙홀용 게임오버 변수
 
 void RemoveCursor(void)
 {
@@ -592,7 +595,7 @@ void Rotate_BossMap() //맵 돌려주는 함수
 				}
 
 				//반사경그리기
-				if (GBInfo_B[1][y][x] == 'm')
+				if (GBInfo_B[1][y][x] == 'u' || GBInfo_B[1][y][x] == 'i' || GBInfo_B[1][y][x] == 'o' || GBInfo_B[1][y][x] == 'p')
 				{
 					printf("@");
 
@@ -641,7 +644,7 @@ void Rotate_BossMap() //맵 돌려주는 함수
 				}
 
 				//반사경그리기
-				if (GBInfo_B[2][y][x] == 'm')
+				if (GBInfo_B[2][y][x] == 'u' || GBInfo_B[2][y][x] == 'i' || GBInfo_B[2][y][x] == 'o' || GBInfo_B[2][y][x] == 'p')
 				{
 					printf("@");
 
@@ -692,7 +695,7 @@ void Rotate_BossMap() //맵 돌려주는 함수
 				}
 
 				//반사경그리기
-				if (GBInfo_B[3][y][x] == 'm')
+				if (GBInfo_B[3][y][x] == 'u' || GBInfo_B[3][y][x] == 'i' || GBInfo_B[3][y][x] == 'o' || GBInfo_B[3][y][x] == 'p')
 				{
 					printf("@");
 
@@ -765,25 +768,34 @@ void deleteGB_N() //일반맵 지우는 함수
 void DrawMap_Switch()	//맵을 그리는 함수 - 스위치의 변화에 따른 변화까지 그려줌
 {
 	int x, y;
+	int reversetime = 30;
 
 	if (Switch_N && changeMap_Normal)//일반맵에서 스위치를 건들였을때
 	{
 
 		if (check_N == 0)//스위치 처음 눌렀을때 지우자
 		{
+			int tempx = PC_pos.X;
+			int tempy = PC_pos.Y;
 			deleteGB_N();
 			MT_pos.X == 28;
 			MT_pos.Y == 15;
+			PC_pos.X = tempy * 2-1;
+			PC_pos.Y = tempx / 2+1;
 		}
 		check_N++;
-		if (check_N == 11)//10번 뒤에 다시 돌림
+		if (check_N == reversetime)//10번 뒤에 다시 돌림
 		{
+			int tempx = PC_pos.X;
+			int tempy = PC_pos.Y;
 			deleteGB_N();
 			starttime = 0;
 			check_N = 0;
 			Switch_N = false;
 			MT_pos.X == 15;
 			MT_pos.Y == 24;
+			PC_pos.X = tempy * 2;
+			PC_pos.Y = tempx / 2-1;
 		}
 	}
 
@@ -972,6 +984,7 @@ int Physical_PC(int maxLife)	//체력함수(캐릭터의 최대 체력을 받아서 현재 체력을 
 {
 	static int nowLife = maxLife;
 
+	if (gameover) nowLife = 0;
 	if (nowLife == 0)	//체력이 0일때 game over
 	{
 		SetCurrentCursorPos(30, 0);
@@ -992,15 +1005,63 @@ int Physical_PC(int maxLife)	//체력함수(캐릭터의 최대 체력을 받아서 현재 체력을 
 
 }
 
+void Rank()
+{
+	int S = 10;
+	int A = 20;
+	int B = 30;
+	int C = 40;
+	
+	for (int x = 0;x<31*2;x++)
+		for (int y = 0;y < 31;y++)
+		{
+			SetCurrentCursorPos(x,y);
+			printf(" ");
+		}
+
+	//랭크 예쁘게 출력하기는 시간되면 하장~
+	if (B_time < S)
+	{
+		SetCurrentCursorPos(10,3);
+		printf("S Rank!!");	//일단 출력
+	}
+	else if (B_time < A)
+	{
+		SetCurrentCursorPos(10, 3);
+		printf("A Rank");	//일단 출력
+	}
+
+	else if (B_time < B)
+	{
+		SetCurrentCursorPos(10, 3);
+		printf("B Rank!!");	//일단 출력
+	}
+	else if (B_time < C)
+	{
+		SetCurrentCursorPos(10, 3);
+		printf("C Rank!!");	//일단 출력
+	}
+	else
+	{
+		SetCurrentCursorPos(10, 3);
+		printf("Failed");	//일단 출력
+	}
+
+	Sleep(1000);
+}
+
 int Physical_Boss(int maxLife)	//체력함수(캐릭터의 최대 체력을 받아서 현재 체력을 리턴)
 {
 	static int nowLife = maxLife;
 
 	if (nowLife == 0)	//체력이 0일때 game over
 	{
+		Rank();
 		isB_Clear();
 	}
 
+	if(ba)
+		nowLife--;
 	//else if (attacked && attacked_Boss == false)	//아팠을때	//레이저 수정 받아야 할듯	//그래서 일단 계속 감소하도록했음
 	//nowLife--;
 
@@ -1039,7 +1100,7 @@ int isCrash(int posX, int posY, char PCInfo[4][4], char GBInfo_B[B_GBOARD_HEIGHT
 				{
 					Switch_N = true;
 					deletePC(PCInfo);
-					PC_pos.Y = 13;
+					//PC_pos.Y = 13;
 					MT_pos.X = 28;
 					MT_pos.Y = 3;
 					return 0;
@@ -1148,6 +1209,14 @@ int ShiftRight()
 		}
 		return 0;
 	}
+	if (changeMap_Normal == true && changeMap_Boss == false && Switch_N == true)//전환맵 블랙홀
+		if (PC_pos.X/2 > GBOARD_WIDTH)
+		{
+			gameover = true;
+			Physical_PC(30);
+			return 0;
+		}
+
 	deletePC(PCInfo[0]);
 	PC_pos.X += 2;
 	SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
@@ -1160,6 +1229,7 @@ int ShiftLeft()
 {
 	if (isCrash(PC_pos.X - 2, PC_pos.Y, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0)//부딪힘
 		return 0;
+	
 	deletePC(PCInfo[0]);
 	PC_pos.X -= 2;
 	SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
@@ -1172,6 +1242,9 @@ int Jump()
 {
 	if (isCrash(PC_pos.X, PC_pos.Y - 1, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0 || PC_pos.Y == 0)//부딪힘
 		return 0;
+	else if (PC_pos.Y - 1 < 0)//일반맵 이동제한
+		return 0;
+
 	deletePC(PCInfo[0]);
 	PC_pos.Y -= 1;
 	SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
@@ -1183,18 +1256,27 @@ int Jump()
 
 int Gravity_N()
 {
-	if (isCrash(PC_pos.X, PC_pos.Y + 1, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0 && changeMap_Normal == true && changeMap_Boss == false && Switch_N == false)	//부딪힘	//일반맵 올라오는 벽	//스위치 X
+	if (PC_pos.Y + 2 + 1 > GBOARD_HEIGHT)//블랙홀
 	{
-		PC_pos.Y -= 1;
+		gameover = true;
+		Physical_PC(30);
 		return 0;
 	}
+
+	if (isCrash(PC_pos.X, PC_pos.Y + 1, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0 && changeMap_Normal == true && changeMap_Boss == false && Switch_N == false)	//부딪힘	//일반맵 올라오는 벽	//스위치 X
+	{
+		if (PC_pos.Y > 0)//위로 못넘어가게
+			PC_pos.Y -= 1;
+		return 0;
+	}	
 
 	if (isCrash(PC_pos.X, PC_pos.Y + 1, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0 && changeMap_Normal == true && changeMap_Boss == false && Switch_N == true)	//부딪힘	//전환맵 아래 벽//스위치 O
 		return 0;
 
 	else if (isCrash(PC_pos.X + 2, PC_pos.Y + 1, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0 && changeMap_Normal == true && changeMap_Boss == false && Switch_N == true)//부딪힘	//전환맵 옆으로 다가오는 벽//스위치 O
 	{
-		PC_pos.X -= 2;
+		if(PC_pos.X - 2 > 0)//이동제한
+			PC_pos.X -= 2;
 		PC_pos.Y += 1;
 		return 0;
 	}
@@ -1409,6 +1491,11 @@ int main(void)
 		{
 			ShootLaser();//레이저를 쏘는 함수 (Draw & Delete)
 			B_time++;//보스맵 경과 시간 증가시키기
+
+
+		//	ba = true;//랭크 테스트용
+		//	Physical_Boss(10);//랭크 테스트용
+			
 		}
 
 		SetCurrentCursorPos(62, 12);
