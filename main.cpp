@@ -420,7 +420,7 @@ void ShootLaser()
 {
 	if (Switch_B % 2 == 0)	//직사각형 맵
 	{
-		len = 18;
+		len = 17;
 		for (count = 0; count<len; count++)
 		{
 			if (reflect)// 반사레이저 쏘기 
