@@ -13,7 +13,6 @@
 #define GBOARD_HEIGHT  29
 #define GBOARD_WIDTH  25
 
-
 //BOSS MAP length
 #define B_GBOARD_HEIGHT  31
 #define B_GBOARD_WIDTH  31
@@ -44,10 +43,10 @@ bool attacked = false;	//공격받았는지 알려주는 변수
 bool Switch_N = false; //스위치 충돌 알려주는 변수
 int Switch_B = 0;//보스맵 스위치 눌릴 때 마다 각도 조절해주는 변수 (맵 모델 선택 4개)
 
-bool changeMap_Boss = false;//보스맵 전환 신호
-bool changeMap_Normal = true;//일반맵 전환 신호
+bool changeMap_Boss = true;//보스맵 전환 신호
+bool changeMap_Normal = false;//일반맵 전환 신호
 bool attacked_Boss = false;	//보스에게 공격 받았는지 알려주는 변수
-int count = 0; // 레이저 간격 변수
+
 int L;//레이저 모델 번호
 bool reflect = false;//반사체크 변수
 
@@ -60,6 +59,9 @@ int B_time = 0;//보스맵입장한지 몇분짼지
 
 bool clear_N = false; //노말맵 도착점 위해 호출 변수
 
+int len; //레이저 길이
+int count;//레이저 이동 (ShootLaser에 있던 i를 바꿈)
+int StoreBoard[B_GBOARD_HEIGHT][B_GBOARD_WIDTH];	//레이저와 보스를 임시로 저장(움직여서 비교 못해서)
 
 void RemoveCursor(void)
 {
@@ -165,12 +167,25 @@ void deletePC(char PCInfo[4][4])
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
 
+//임시 게임판을 지우는 함수
+void DeleteStoreBoard()
+{
+	for (int i = 0; i<B_GBOARD_HEIGHT; i++)
+		for (int j = 0; j<B_GBOARD_WIDTH; j++)
+			StoreBoard[i][j] = 0;	//임시 게임판을 지움
 
-//Boss를 그리는 함수
+
+}
+
+//Boss를 그리는 함수	
 void DrawBoss(char BossInfo[7][15])
 {
 	int x, y;
+	int arrX = Boss_pos.X / 2;
+	int arrY = Boss_pos.Y;
+
 	COORD curPos = GetCurrentCursorPos();
+
 	for (y = 0; y<7; y++)
 	{
 		for (x = 0; x<15; x++)
@@ -178,7 +193,13 @@ void DrawBoss(char BossInfo[7][15])
 			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
 
 			if (BossInfo[y][x] == 1)
+			{
 				printf("▣");
+				StoreBoard[arrY + y][arrX + x] = 1;	//크래쉬가 안되서 임시 게임판 안에 넣어놓음
+
+
+			}
+
 			if (BossInfo[y][x] == 2)
 				printf("♣");
 			if (BossInfo[y][x] == 3)
@@ -211,16 +232,16 @@ void DeleteBoss(char BossInfo[5][5])
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
 
-int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][5], char GBInfo_B[31][31])//레이저랑 반사경이랑 부딪힐때 함수
+int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][20], char GBInfo_B[31][31])//레이저랑 반사경이랑 부딪힐때 함수
 {
 	int x, y;
 	int arrX = posX / 2;
 	int arrY = posY + 1;
 
 	int nonotime = 3;//몇번 범출껀지
-	int mindex=-1;
+	int mindex = -1;
 
-	for (x = 0; x < 5; x++)
+	for (x = 0; x < 20; x++)
 		for (y = 0; y < 5; y++) {
 			if (LaserInfo[y][x] == 1)
 			{
@@ -229,7 +250,7 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][5], char GBInfo_
 				switch (GBInfo_B[arrY + y][arrX + x])
 				{
 					//1
-				case 'u' :
+				case 'u':
 					mindex = 0;
 					Mirr_num[mindex] += 1;
 					SetCurrentCursorPos(62, 13);
@@ -313,9 +334,9 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][5], char GBInfo_
 					}
 					return 1;
 					break;
-				
+
 				}
-				
+
 			}
 		}
 
@@ -324,17 +345,35 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][5], char GBInfo_
 }
 
 //Laser를 그리는 함수
-void DrawLaser_B(char LaserInfo[5][5])
+void DrawLaser(char LaserInfo[5][20])
 {
 	int x, y;
+	int arrX;
+	int arrY;
+
+	if (Switch_B % 2 == 0)	//직사각형 맵
+	{
+		arrX = (Boss_pos.X - 6) / 2;
+		arrY = Boss_pos.Y + len + 3 - 1 - count + 1 + 4;
+	}
+	if (Switch_B % 2 == 1)	//마름모 맵
+	{
+		arrX = (Boss_pos.X - 10) / 2;
+		arrY = Boss_pos.Y + len + 3 - 1 - count + 1 + 2;
+	}
+
 	COORD curPos = GetCurrentCursorPos();
 	for (y = 0; y<5; y++)
-		for (x = 0; x<5; x++)
+		for (x = 0; x<20; x++)
 		{
 			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
 
 			if (LaserInfo[y][x] == 1)
+			{
 				printf("º");
+				StoreBoard[arrY + y][arrX + x] = 2;	//크래쉬가 안되서 보스 게임판 안에 넣어놓음
+			}
+				
 
 		}
 	SetCurrentCursorPos(curPos.X, curPos.Y);
@@ -342,61 +381,89 @@ void DrawLaser_B(char LaserInfo[5][5])
 }
 
 //Laser를 지우는 함수
-void DeleteLaser_B(char LaserInfo[5][5])
+void DeleteLaser(char LaserInfo[5][20])
 {
 	int x, y;
+	int arrX;
+	int arrY;
+
+	if (Switch_B % 2 == 0)	//직사각형 맵
+	{
+		arrX = (Boss_pos.X - 6) / 2;
+		arrY = Boss_pos.Y + len + 3 - 1 - count + 1 + 4;
+	}
+	if (Switch_B % 2 == 1)	//마름모 맵
+	{
+		arrX = (Boss_pos.X - 10) / 2;
+		arrY = Boss_pos.Y + len + 3 - 1 - count + 1 + 2;
+	}
+
 	COORD curPos = GetCurrentCursorPos();
 	for (y = 0; y<5; y++)
-		for (x = 0; x<5; x++)
+		for (x = 0; x<20; x++)
 		{
 			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
 
 			if (LaserInfo[y][x] == 1)
+			{
+				StoreBoard[arrY + y][arrX + x] = 0;	//크래쉬가 안되서 보스 게임판 안에 넣어놓음
 				printf(" ");
+
+			}
+
 		}
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
 
-//Laser를 쏘는는 함수 (Draw & Delete) 
+//Laser를 쏘는 함수 (Draw & Delete) 
 void ShootLaser()
 {
 	if (Switch_B % 2 == 0)	//직사각형 맵
 	{
-		int len = 21;
-		for (int i = 0; i<len; i++)
+		len = 18;
+		for (count = 0; count<len; count++)
 		{
 			if (reflect)// 반사레이저 쏘기 
 			{
-				if (i != 0)
+				if (count != 0)
 				{
-					SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + len + 3 - 1 - i + 1);
-					DeleteLaser_B(LaserInfo[5]);
+					SetCurrentCursorPos(Boss_pos.X - 6, Boss_pos.Y + len + 3 - 1 - count + 1 + 4);
+					DeleteLaser(LaserInfo[14]);
+					
 				}
-				SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + len + 3 - 1 - i);
-				DrawLaser_B(LaserInfo[5]);	//반사레이저 
+				
+				SetCurrentCursorPos(Boss_pos.X - 6, Boss_pos.Y + len + 3 - 1 - count + 4);
+				DrawLaser(LaserInfo[14]);	//반사레이저 
+											
 			}
 
-			if (i != 0)//첨엔 레이저 지울꺼 없당
+			if (count != 0)//첨엔 레이저 지울꺼 없당
 			{
-				SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + 3 + i - 1);
-				DeleteLaser_B(LaserInfo[L]);	//레이저 지움
+				SetCurrentCursorPos(Boss_pos.X - 6, Boss_pos.Y + 3 + count - 1 + 4);
+				DeleteLaser(LaserInfo[L]);	//레이저 지움
+											
 			}
-			SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + 3 + i);
-			DrawLaser_B(LaserInfo[L]);	//레이저 쏘기		
+			SetCurrentCursorPos(Boss_pos.X - 6, Boss_pos.Y + 3 + count + 4);
+			DrawLaser(LaserInfo[L]);	//레이저 쏘기	
+										
 
-			if (i == len - 1)	//초기화
+			if (count == len - 1)	//초기화
 			{
-				DeleteLaser_B(LaserInfo[L]);
-				SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + len + 3 - 1 - i);
-				DeleteLaser_B(LaserInfo[5]);
+				DeleteLaser(LaserInfo[L]);
+				SetCurrentCursorPos(Boss_pos.X - 6, Boss_pos.Y + len + 3 - 1 - count + 4);
+				DeleteLaser(LaserInfo[14]);
+				
 				reflect = false;
 			}
-			if (DetectCollision_Laser(Boss_pos.X, Boss_pos.Y + 3 + i, LaserInfo[L], GBInfo_B[Switch_B % 4]))//다음 포문에서 반사 레이저를 그려줌
+			if (DetectCollision_Laser(Boss_pos.X - 6, Boss_pos.Y + 3 + count + 4, LaserInfo[L], GBInfo_B[Switch_B % 4]))//다음 포문에서 반사 레이저를 그려줌
 				reflect = true;
 
-			if (i == len - 1)	//초기화
+			if (count == len - 1)	//초기화
 			{
-				L = (rand() % 4) + 1;
+				//L = (rand() % 4) + 1;
+				//L = (++L % 14);//테스트용
+				L = (++L % 2);
+
 			}
 			Sleep(speed_laser);
 		}
@@ -405,44 +472,44 @@ void ShootLaser()
 
 	if (Switch_B % 2 == 1)	//마름모 맵
 	{
-		int len = 16;
-		for (int i = 0; i<len; i++)
+		len = 16;
+		for (count = 0; count<len; count++)
 		{
 			if (reflect)// 반사레이저 쏘기 
 			{
-				if (i != 0)
+				if (count != 0)
 				{
-					SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + len + 3 - 1 - i + 1);
-					DeleteLaser_B(LaserInfo[5]);
+					SetCurrentCursorPos(Boss_pos.X - 10, Boss_pos.Y + len + 3 - 1 - count + 1 + 2);
+					DeleteLaser(LaserInfo[15]);
 				}
-				SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + len + 3 - 1 - i);
-				DrawLaser_B(LaserInfo[5]);	//반사레이저 
+				SetCurrentCursorPos(Boss_pos.X - 10, Boss_pos.Y + len + 3 - 1 - count + 2);
+				DrawLaser(LaserInfo[15]);	//반사레이저 
 
 			}
 
-			if (i != 0)//첨엔 레이저 지울꺼 없당
+			if (count != 0)//첨엔 레이저 지울꺼 없당
 			{
-				SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + 3 + i - 1);
-				DeleteLaser_B(LaserInfo[L]);	//레이저 지움
+				SetCurrentCursorPos(Boss_pos.X - 10, Boss_pos.Y + 3 + count - 1 + 2);
+				DeleteLaser(LaserInfo[L]);	//레이저 지움
 			}
-			SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + 3 + i);
-			DrawLaser_B(LaserInfo[L]);	//레이저 쏘기		
+			SetCurrentCursorPos(Boss_pos.X - 10, Boss_pos.Y + 3 + count + 2);
+			DrawLaser(LaserInfo[L]);	//레이저 쏘기		
 
 
 
-			if (i == len - 1)	//초기화
+			if (count == len - 1)	//초기화
 			{
-				DeleteLaser_B(LaserInfo[L]);
-				SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y + len + 3 - 1 - i);
-				DeleteLaser_B(LaserInfo[5]);
+				DeleteLaser(LaserInfo[L]);
+				SetCurrentCursorPos(Boss_pos.X - 10, Boss_pos.Y + len + 3 - 1 - count + 2);
+				DeleteLaser(LaserInfo[15]);
 				reflect = false;
 			}
-			if (DetectCollision_Laser(Boss_pos.X, Boss_pos.Y + 3 + i, LaserInfo[L], GBInfo_B[Switch_B % 4]))//다음 포문에서 반사 레이저를 그려줌
+			if (DetectCollision_Laser(Boss_pos.X - 10, Boss_pos.Y + 3 + count + 2, LaserInfo[L], GBInfo_B[Switch_B % 4]))//다음 포문에서 반사 레이저를 그려줌
 				reflect = true;
-			if (i == len - 1)	//초기화
+			if (count == len - 1)	//초기화
 			{
 				//L = (rand() % 4) + 1;
-				L = (++L % 4) + 1;//테스트용
+				L = (++L % 14);//테스트용
 			}
 			Sleep(speed_laser);
 		}
@@ -683,16 +750,16 @@ void deleteGB_B() //보스맵 지우는 함수
 void deleteGB_N() //일반맵 지우는 함수
 {
 
-		for (int y = 0; y < GBOARD_HEIGHT; y++)
+	for (int y = 0; y < GBOARD_HEIGHT; y++)
+	{
+		for (int x = 0; x < GBOARD_HEIGHT; x++)
 		{
-			for (int x = 0; x < GBOARD_HEIGHT; x++)
-			{
-				SetCurrentCursorPos((x * 2), y);
+			SetCurrentCursorPos((x * 2), y);
 
-				printf("　");
-			}
+			printf("　");
 		}
-	
+	}
+
 }
 
 void DrawMap_Switch()	//맵을 그리는 함수 - 스위치의 변화에 따른 변화까지 그려줌
@@ -777,7 +844,7 @@ void DrawMap_Switch()	//맵을 그리는 함수 - 스위치의 변화에 따른 변화까지 그려줌
 void UpOB()	//돌출 지형을 일정 간격마다 위로 올려주는 함수 
 {
 	int line, x, y;
-	for (y = 0; y < GBOARD_HEIGHT-1; y++)
+	for (y = 0; y < GBOARD_HEIGHT - 1; y++)
 	{
 		memcpy(&GBInfo_N[y][1], &GBInfo_N[y + 1][1], GBOARD_WIDTH * sizeof(int));//내장함수,복사할 떄 많이들 사용
 		for (x = 0; x < GBOARD_WIDTH; x++)
@@ -789,7 +856,7 @@ void MakeOb()	//돌출 지형을 GBInfo_N에 생성해주는 함수
 {
 	srand((unsigned int)time(NULL));
 	Check_Ob = (rand() % 6) * 2 + 2; // 1~23
-	Ran = (rand() % 8) * 2 + 4*2 ;
+	Ran = (rand() % 8) * 2 + 4 * 2;
 
 	for (int x = Check_Ob; x < Check_Ob + Ran; x++)
 		GBInfo_N[27][x] = 1;
@@ -942,7 +1009,7 @@ int Physical_Boss(int maxLife)	//체력함수(캐릭터의 최대 체력을 받아서 현재 체력�
 
 }
 
-int isCrash(int posX, int posY, char PCInfo[4][4], char GBInfo_B[31][31])	//충돌 함수
+int isCrash(int posX, int posY, char PCInfo[4][4], char GBInfo_B[B_GBOARD_HEIGHT][B_GBOARD_WIDTH])	//충돌 함수
 {
 	int x, y;
 	int arrX = (posX) / 2;
@@ -1029,6 +1096,8 @@ int isCrash(int posX, int posY, char PCInfo[4][4], char GBInfo_B[31][31])	//충돌
 				{
 					Switch_B++;
 					check_B = 0;
+					DeleteStoreBoard();	//임시맵 초기화
+
 					if (Switch_B % 2 == 0)
 						PC_pos.Y = 20;
 					else if (Switch_B % 2 == 1)
@@ -1040,14 +1109,20 @@ int isCrash(int posX, int posY, char PCInfo[4][4], char GBInfo_B[31][31])	//충돌
 					deleteGB_B();
 				}
 
-				//if (Boss_pos.X == PC_pos.X &&Boss_pos.Y + 3 + count == PC_pos.Y);
-				//{
-				//	//printf("레이저");
+				if (StoreBoard[arrY + y][arrX + x] == 1)	//보스랑 충돌 ( 보스를 임시 맵에 넣어버렸음)
+				{
+					//printf("보스");
+					attacked_Boss = true;
+					attacked = true;
+					return 0;
+				}
 
-
-				//}
-
-
+				if (StoreBoard[arrY + y][arrX + x] == 2)	//레이저 충돌 ( 레이저를 임시 맵에 넣어버렸음)
+				{
+					//printf("레이저");
+					attacked = true;
+					//return 0;
+				}
 
 				if ((PC_pos.Y == MT_pos.X) && ((PC_pos.X + 3 == MT_pos.Y) || (PC_pos.X + 2 == MT_pos.Y) || (PC_pos.X + 1 == MT_pos.Y)))	//운석 충돌 (서로 뚫고 지나감)
 				{
@@ -1179,7 +1254,7 @@ void DrawClear_N()
 			{
 				GBInfo_N[y][x] = 2;
 			}
-				
+
 		}
 	}
 
@@ -1246,19 +1321,19 @@ int main(void)
 
 	for (int x = Check_Ob; x < Check_Ob + Ran; x++)
 	{
-		GBInfo_N[18][x+4] = 1;
-		GBInfo_N[24][x+7] = 1;
+		GBInfo_N[18][x + 4] = 1;
+		GBInfo_N[24][x + 7] = 1;
 	} //처음 시작시 화면에 강제로 돌출지형 그려주는 것, 시작부터 장애물 채우고 시작!
-	
+
 
 	while (1)
 	{
 
 		if (changeMap_Normal == true && changeMap_Boss == false && clear_N == false)
 		{
-			
+
 			UpOB();
-			
+
 
 		}
 		DrawMap_Switch();
@@ -1297,7 +1372,7 @@ int main(void)
 		SetCurrentCursorPos(MT_pos.X, MT_pos.Y);
 
 		if (!Shoot_MT() && Switch_N == false) {
-			MT_pos.X = (rand() % 20) * 2 +2;
+			MT_pos.X = (rand() % 20) * 2 + 2;
 			MT_pos.Y = 26;
 		}
 
@@ -1328,7 +1403,7 @@ int main(void)
 			DrawClear_N();
 			/*isN_clear();*/
 		}//50번째 줄일 때 클리어(일반)
-			
+
 
 		if (changeMap_Normal == false && changeMap_Boss == true && check_B>0)	//레이저를 쏘쟛	//check_B는 보스맵을 다 그리고서 레이저를 쏘려고
 		{
@@ -1337,7 +1412,7 @@ int main(void)
 		}
 
 		SetCurrentCursorPos(62, 12);
-		printf("Boss time %3d",B_time);
+		printf("Boss time %3d", B_time);
 	}
 
 	getchar();
