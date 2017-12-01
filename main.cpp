@@ -192,26 +192,26 @@ void DeleteStoreBoard()
 	
 }
 
-int ddd = 0;
-void Print(char flag)
-{
-	COORD curPos = GetCurrentCursorPos();
-
-	SetCurrentCursorPos(0, 50+31*ddd+3);
-
-	printf("%c\n", flag);
-	for (int i = 0; i < B_GBOARD_HEIGHT; i++)
-	{
-		for (int j = 0; j < B_GBOARD_WIDTH; j++)
-		{
-			printf("%3d", StoreBoard[i][j]);
-		}
-		printf("\n");
-	}
-	ddd++;
-
-	SetCurrentCursorPos(curPos.X, curPos.Y);
-}
+//int ddd = 0;
+//void Print(char flag)
+//{
+//	COORD curPos = GetCurrentCursorPos();
+//
+//	SetCurrentCursorPos(0, 50+31*ddd+3);
+//
+//	printf("%c\n", flag);
+//	for (int i = 0; i < B_GBOARD_HEIGHT; i++)
+//	{
+//		for (int j = 0; j < B_GBOARD_WIDTH; j++)
+//		{
+//			printf("%3d", StoreBoard[i][j]);
+//		}
+//		printf("\n");
+//	}
+//	ddd++;
+//
+//	SetCurrentCursorPos(curPos.X, curPos.Y);
+//}
 
 //Boss를 그리는 함수	
 void DrawBoss(char BossInfo[7][15])
@@ -336,34 +336,34 @@ void ShootLaser()
 				{
 					SetCurrentCursorPos(Boss_pos.X-6, Boss_pos.Y + len + 3 - 1 - count + 1 +4);
 					DeleteLaser(LaserInfo[14]);
-					if(ddd<6)
-					Print('E');
+					//if(ddd<6)
+					//Print('E');
 				}
 				SetCurrentCursorPos(Boss_pos.X-6, Boss_pos.Y + len + 3 - 1 - count + 4);
 				DrawLaser(LaserInfo[14]);	//반사레이저 
-				if (ddd<6)
-				Print('C');
+				//if (ddd<6)
+				//Print('C');
 			}
 
 			if (count != 0)//첨엔 레이저 지울꺼 없당
 			{
 				SetCurrentCursorPos(Boss_pos.X-6, Boss_pos.Y + 3 + count - 1 + 4);
 				DeleteLaser(LaserInfo[L]);	//레이저 지움
-				if (ddd<6)
-				Print('E');
+				//if (ddd<6)
+				//Print('E');
 			}
 			SetCurrentCursorPos(Boss_pos.X-6, Boss_pos.Y + 3 + count + 4);
 			DrawLaser(LaserInfo[L]);	//레이저 쏘기	
-			if (ddd<6)
-			Print('C');
+			//if (ddd<6)
+			//Print('C');
 
 			if (count == len - 1)	//초기화
 			{
 				DeleteLaser(LaserInfo[L]);
 				SetCurrentCursorPos(Boss_pos.X-6, Boss_pos.Y + len + 3 - 1 - count + 4);
 				DeleteLaser(LaserInfo[14]);
-				if (ddd<6)
-				Print('E');
+				//if (ddd<6)
+				//Print('E');
 				reflect = false;
 			}
 			if (DetectCollision_Laser(Boss_pos.X-6, Boss_pos.Y + 3 + count + 4, LaserInfo[L], GBInfo_B[Switch_B % 4]))//다음 포문에서 반사 레이저를 그려줌
