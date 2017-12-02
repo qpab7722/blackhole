@@ -56,6 +56,7 @@ int checkStage = 1;	//현재 Stage
 int Mirr_num[4] = { 0 };//미러에 누적된 횟수 변수
 int Mirr_overheattime[4] = { -1 };//과열 상태가 시작된 시간을 체크하는 변수
 int B_time = 0;//보스맵입장한지 몇분짼지
+bool overheat[4] = { false };//과열됐는지 
 
 bool clear_N = false; //노말맵 도착점 위해 호출 변수
 
@@ -122,7 +123,7 @@ void DeleteOb()
 		for (x = 0; x<25; x++)
 		{
 			SetCurrentCursorPos((x * 2), y);
-			if (GBInfo_N[y][x] != 0 && GBInfo_N[y][x]!=1)
+			if (GBInfo_N[y][x] != 0 && GBInfo_N[y][x] != 1)
 				printf(" ");
 			if (changeMap_Normal == false && changeMap_Boss)//일반맵 아니고, 보스맵일때 장애물 지워줌
 				printf(" ");
@@ -243,7 +244,7 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][20], char GBInfo
 	int arrX = posX / 2;
 	int arrY = posY + 1;
 
-	int nonotime = 3;//몇번 범출껀지
+	int nonotime = 10;//몇번 범출껀지
 	int mindex = -1;
 
 	for (x = 0; x < 20; x++)
@@ -264,10 +265,12 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][20], char GBInfo
 					if (Mirr_num[mindex] == 4) Mirr_overheattime[mindex] = B_time;
 					else if (Mirr_num[mindex] > 4)
 					{
+						overheat[mindex] = true;
 						if (Mirr_overheattime[mindex]>0 && B_time - Mirr_overheattime[mindex] > nonotime)//10초간 과열 후 초기화
 						{
 							Mirr_overheattime[mindex] = -1;
 							Mirr_num[mindex] = 0;
+							overheat[mindex] = false;
 							return 1;
 						}
 						else
@@ -285,10 +288,12 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][20], char GBInfo
 					if (Mirr_num[mindex] == 4) Mirr_overheattime[mindex] = B_time;
 					else if (Mirr_num[mindex] > 4)
 					{
+						overheat[mindex] = true;
 						if (Mirr_overheattime[mindex]>0 && B_time - Mirr_overheattime[mindex] > nonotime)//10초간 과열 후 초기화
 						{
 							Mirr_overheattime[mindex] = -1;
 							Mirr_num[mindex] = 0;
+							overheat[mindex] = false;
 							return 1;
 						}
 						else
@@ -306,10 +311,12 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][20], char GBInfo
 					if (Mirr_num[mindex] == 4) Mirr_overheattime[mindex] = B_time;
 					else if (Mirr_num[mindex] > 4)
 					{
+						overheat[mindex] = true;
 						if (Mirr_overheattime[mindex]>0 && B_time - Mirr_overheattime[mindex] > nonotime)//10초간 과열 후 초기화
 						{
 							Mirr_overheattime[mindex] = -1;
 							Mirr_num[mindex] = 0;
+							overheat[mindex] = false;
 							return 1;
 						}
 						else
@@ -328,10 +335,12 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][20], char GBInfo
 					if (Mirr_num[mindex] == 4) Mirr_overheattime[mindex] = B_time;
 					else if (Mirr_num[mindex] > 4)
 					{
+						overheat[mindex] = true;
 						if (Mirr_overheattime[mindex]>0 && B_time - Mirr_overheattime[mindex] > nonotime)//10초간 과열 후 초기화
 						{
 							Mirr_overheattime[mindex] = -1;
 							Mirr_num[mindex] = 0;
+							overheat[mindex] = false;
 							return 1;
 						}
 						else
@@ -425,7 +434,7 @@ void DeleteLaser(char LaserInfo[5][20])
 //보스맵을 그리는 함수
 void drawGB_B(char GBInfo_B[31][31])
 {
-	int x, y, mnb = 0, snb = 0;
+	int x, y;
 	COORD curPos = GetCurrentCursorPos();
 
 	for (y = 0; y<B_GBOARD_HEIGHT; y++)
@@ -441,26 +450,44 @@ void drawGB_B(char GBInfo_B[31][31])
 			}
 
 			//반사경그리기
-			if (GBInfo_B[y][x] == 'u' || GBInfo_B[y][x] == 'i' || GBInfo_B[y][x] == 'o' || GBInfo_B[y][x] == 'p')
+			if (GBInfo_B[y][x] == 'u' )
 			{
+				if(overheat[0])
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 1);
+				else
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 11);
 				printf("@");
-
-				Mirr_pos[mnb].X = x;
-				Mirr_pos[mnb].Y = y;
-				mnb++;
-
+			}
+			if ( GBInfo_B[y][x] == 'i')
+			{
+				if (overheat[1])
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 1);
+				else
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 11);
+				printf("@");
+			}
+			if (GBInfo_B[y][x] == 'o')
+			{
+				if (overheat[2])
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 1);
+				else
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 11);
+				printf("@");
+			}
+			if (GBInfo_B[y][x] == 'p')
+			{
+				if (overheat[3])
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 1);
+				else
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 11);
+				printf("@");
 			}
 
 			//스위치그리기
 			if (GBInfo_B[y][x] == 's')
 			{
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
-				printf("☎");
-
-				Switch_pos[snb].X = curPos.X;
-				Switch_pos[snb].Y = curPos.Y;
-				snb++;
+				printf("☎");				
 			}
 
 			//Boss그리기
@@ -718,15 +745,15 @@ void DrawMap_Switch()	//맵을 그리는 함수 - 스위치의 변화에 따른 변화까지 그려줌
 			Rotate_BossMap();
 	}
 	else if (changeMap_Normal) 	//일반맵 그리기
-	{	
-		
-			for (int y = 0; y < GBOARD_HEIGHT; y++)
-			{
-				GBInfo_N[y][0] = 2;
-				GBInfo_N[y][GBOARD_WIDTH - 1] = 2;
+	{
 
-			}
-		
+		for (int y = 0; y < GBOARD_HEIGHT; y++)
+		{
+			GBInfo_N[y][0] = 2;
+			GBInfo_N[y][GBOARD_WIDTH - 1] = 2;
+
+		}
+
 
 		for (y = 0; y < 29; y++)
 		{
@@ -754,7 +781,7 @@ void DrawMap_Switch()	//맵을 그리는 함수 - 스위치의 변화에 따른 변화까지 그려줌
 
 		}
 	}
-	
+
 
 }
 
@@ -1164,7 +1191,7 @@ int Jump()
 int Gravity_N()
 {
 
-	if (changeMap_Boss == false &&  changeMap_Normal==true&&  PC_pos.Y + 2 + 1 > GBOARD_HEIGHT)//블랙홀
+	if (changeMap_Boss == false && changeMap_Normal == true && PC_pos.Y + 2 + 1 > GBOARD_HEIGHT)//블랙홀
 	{
 		gameover = true;
 		Physical_PC(30);
@@ -1203,7 +1230,7 @@ int Gravity_N()
 			PC_pos.X -= 2;
 		SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
 		drawPC(PCInfo[0]);
-	
+
 		Sleep(speed);
 	}
 	else
@@ -1213,8 +1240,8 @@ int Gravity_N()
 		PC_pos.Y += 1;
 		SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
 		drawPC(PCInfo[0]);
-		
-			Sleep(speed);
+
+		Sleep(speed);
 	}
 	return 1;
 }
@@ -1266,14 +1293,14 @@ void ProcessKeyInput()
 //Laser를 쏘는 함수 (Draw & Delete) 
 void ShootLaser()
 {
-	
+
 	if (Switch_B % 2 == 0)	//직사각형 맵
 	{
 		len = 17;
 		for (count = 0; count<len; count++)
 		{
 			ProcessKeyInput();
-		
+
 			if (count % 5 == 0)
 				Gravity_N();
 
@@ -1472,8 +1499,8 @@ int main(void)
 
 
 		SetCurrentCursorPos(62, 7);
-		printf("checktome %d",ObTime);
-		
+		printf("checktome %d", ObTime);
+
 
 
 
@@ -1517,7 +1544,7 @@ int main(void)
 		{
 			ShootLaser();//레이저를 쏘는 함수 (Draw & Delete)
 			B_time++;//보스맵 경과 시간 증가시키기
-			
+
 
 					 //	ba = true;//랭크 테스트용
 					 //	Physical_Boss(10);//랭크 테스트용
