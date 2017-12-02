@@ -25,8 +25,8 @@ COORD Boss_pos = { 0,0 }; //보스 위치
 
 int GBInfo_N[GBOARD_HEIGHT][GBOARD_WIDTH];
 
-int speed_laser = 50;
-int speed = 30;
+int speed_laser = 30;
+int speed = 15;
 int check = 0; // 스위치후 delete
 int PCLife = 30;	//PC의 체력
 
@@ -43,8 +43,8 @@ bool attacked = false;	//공격받았는지 알려주는 변수
 bool Switch_N = false; //스위치 충돌 알려주는 변수
 int Switch_B = 0;//보스맵 스위치 눌릴 때 마다 각도 조절해주는 변수 (맵 모델 선택 4개)
 
-bool changeMap_Boss = true;//보스맵 전환 신호
-bool changeMap_Normal = false;//일반맵 전환 신호
+bool changeMap_Boss = false;//보스맵 전환 신호
+bool changeMap_Normal = true;//일반맵 전환 신호
 bool attacked_Boss = false;	//보스에게 공격 받았는지 알려주는 변수
 
 int L;//레이저 모델 번호
@@ -123,7 +123,7 @@ void DeleteOb()
 		for (x = 0; x<25; x++)
 		{
 			SetCurrentCursorPos((x * 2), y);
-			if (GBInfo_N[y][x] != 0 && GBInfo_N[y][x] != 1)
+			if (GBInfo_N[y][x] != 0 && GBInfo_N[y][x]!=1)
 				printf(" ");
 			if (changeMap_Normal == false && changeMap_Boss)//일반맵 아니고, 보스맵일때 장애물 지워줌
 				printf(" ");
@@ -434,7 +434,7 @@ void DeleteLaser(char LaserInfo[5][20])
 //보스맵을 그리는 함수
 void drawGB_B(char GBInfo_B[31][31])
 {
-	int x, y;
+	int x, y, mnb = 0, snb = 0;
 	COORD curPos = GetCurrentCursorPos();
 
 	for (y = 0; y<B_GBOARD_HEIGHT; y++)
@@ -450,15 +450,15 @@ void drawGB_B(char GBInfo_B[31][31])
 			}
 
 			//반사경그리기
-			if (GBInfo_B[y][x] == 'u' )
+			if (GBInfo_B[y][x] == 'u')
 			{
-				if(overheat[0])
+				if (overheat[0])
 					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 1);
 				else
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 11);
+					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 11);
 				printf("@");
 			}
-			if ( GBInfo_B[y][x] == 'i')
+			if (GBInfo_B[y][x] == 'i')
 			{
 				if (overheat[1])
 					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 1);
@@ -487,7 +487,11 @@ void drawGB_B(char GBInfo_B[31][31])
 			if (GBInfo_B[y][x] == 's')
 			{
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
-				printf("☎");				
+				printf("☎");
+
+				Switch_pos[snb].X = curPos.X;
+				Switch_pos[snb].Y = curPos.Y;
+				snb++;
 			}
 
 			//Boss그리기
@@ -552,7 +556,7 @@ void Rotate_BossMap() //맵 돌려주는 함수
 					Boss_pos.Y = y;
 					SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y);
 
-					DrawBoss(BossInfo[0]);
+					DrawBoss(BossInfo[1]);
 				}
 
 			}
@@ -652,7 +656,7 @@ void Rotate_BossMap() //맵 돌려주는 함수
 					Boss_pos.Y = y;
 					SetCurrentCursorPos(Boss_pos.X, Boss_pos.Y);
 
-					DrawBoss(BossInfo[0]);
+					DrawBoss(BossInfo[1]);
 				}
 
 			}
@@ -745,15 +749,15 @@ void DrawMap_Switch()	//맵을 그리는 함수 - 스위치의 변화에 따른 변화까지 그려줌
 			Rotate_BossMap();
 	}
 	else if (changeMap_Normal) 	//일반맵 그리기
-	{
+	{	
+		
+			for (int y = 0; y < GBOARD_HEIGHT; y++)
+			{
+				GBInfo_N[y][0] = 2;
+				GBInfo_N[y][GBOARD_WIDTH - 1] = 2;
 
-		for (int y = 0; y < GBOARD_HEIGHT; y++)
-		{
-			GBInfo_N[y][0] = 2;
-			GBInfo_N[y][GBOARD_WIDTH - 1] = 2;
-
-		}
-
+			}
+		
 
 		for (y = 0; y < 29; y++)
 		{
@@ -781,7 +785,7 @@ void DrawMap_Switch()	//맵을 그리는 함수 - 스위치의 변화에 따른 변화까지 그려줌
 
 		}
 	}
-
+	
 
 }
 
@@ -954,29 +958,80 @@ void Rank()
 	//랭크 예쁘게 출력하기는 시간되면 하장~
 	if (B_time < S)
 	{
-		SetCurrentCursorPos(10, 3);
-		printf("S Rank!!");	//일단 출력
+		COORD curPos = GetCurrentCursorPos();
+		for (int x = 0; x < 5; x++)
+			for (int y = 0; y < 5; y++)
+			{
+				SetCurrentCursorPos(10 + (x * 2), 3 + y);
+				{
+					if (rank[0][y][x] == 1)
+						printf("■");
+				}
+			}
+		SetCurrentCursorPos(22, 7);
+		printf("Rank");
+
 	}
 	else if (B_time < A)
 	{
-		SetCurrentCursorPos(10, 3);
-		printf("A Rank");	//일단 출력
+		COORD curPos = GetCurrentCursorPos();
+		for (int x = 0; x < 5; x++)
+			for (int y = 0; y < 5; y++)
+			{
+				SetCurrentCursorPos(10 + (x * 2), 3 + y);
+				{
+					if (rank[1][y][x] == 1)
+						printf("■");
+				}
+			}
+		SetCurrentCursorPos(22, 7);
+		printf("Rank");
 	}
 
 	else if (B_time < B)
 	{
-		SetCurrentCursorPos(10, 3);
-		printf("B Rank!!");	//일단 출력
+		COORD curPos = GetCurrentCursorPos();
+		for (int x = 0; x < 5; x++)
+			for (int y = 0; y < 5; y++)
+			{
+				SetCurrentCursorPos(10 + (x * 2), 3 + y);
+				{
+					if (rank[2][y][x] == 1)
+						printf("■");
+				}
+			}
+		SetCurrentCursorPos(22, 7);
+		printf("Rank");
 	}
 	else if (B_time < C)
 	{
-		SetCurrentCursorPos(10, 3);
-		printf("C Rank!!");	//일단 출력
+		COORD curPos = GetCurrentCursorPos();
+		for (int x = 0; x < 5; x++)
+			for (int y = 0; y < 5; y++)
+			{
+				SetCurrentCursorPos(10 + (x * 2), 3 + y);
+				{
+					if (rank[3][y][x] == 1)
+						printf("■");
+				}
+			}
+		SetCurrentCursorPos(22, 7);
+		printf("Rank");
 	}
 	else
 	{
-		SetCurrentCursorPos(10, 3);
-		printf("Failed");	//일단 출력
+		COORD curPos = GetCurrentCursorPos();
+		for (int x = 0; x < 5; x++)
+			for (int y = 0; y < 5; y++)
+			{
+				SetCurrentCursorPos(10 + (x * 2), 3 + y);
+				{
+					if (rank[4][y][x] == 1)
+						printf("■");
+				}
+			}
+		SetCurrentCursorPos(22, 7);
+		printf("Rank");
 	}
 
 	Sleep(1000);
@@ -1191,7 +1246,7 @@ int Jump()
 int Gravity_N()
 {
 
-	if (changeMap_Boss == false && changeMap_Normal == true && PC_pos.Y + 2 + 1 > GBOARD_HEIGHT)//블랙홀
+	if (changeMap_Boss == false &&  changeMap_Normal==true&&  PC_pos.Y + 2 + 1 > GBOARD_HEIGHT)//블랙홀
 	{
 		gameover = true;
 		Physical_PC(30);
@@ -1230,7 +1285,7 @@ int Gravity_N()
 			PC_pos.X -= 2;
 		SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
 		drawPC(PCInfo[0]);
-
+	
 		Sleep(speed);
 	}
 	else
@@ -1240,8 +1295,8 @@ int Gravity_N()
 		PC_pos.Y += 1;
 		SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
 		drawPC(PCInfo[0]);
-
-		Sleep(speed);
+		
+			Sleep(speed);
 	}
 	return 1;
 }
@@ -1284,7 +1339,7 @@ void ProcessKeyInput()
 				break;
 			}
 		}
-		//Sleep(speed);
+		Sleep(speed);
 	}
 }
 
@@ -1293,14 +1348,14 @@ void ProcessKeyInput()
 //Laser를 쏘는 함수 (Draw & Delete) 
 void ShootLaser()
 {
-
+	
 	if (Switch_B % 2 == 0)	//직사각형 맵
 	{
 		len = 17;
 		for (count = 0; count<len; count++)
 		{
 			ProcessKeyInput();
-
+		
 			if (count % 5 == 0)
 				Gravity_N();
 
@@ -1481,8 +1536,8 @@ int main(void)
 
 		SetCurrentCursorPos(PC_pos.X, PC_pos.Y);
 		drawPC(PCInfo[0]);
-
-		Gravity_N();
+		if(!changeMap_Boss)
+			Gravity_N();
 		ProcessKeyInput();
 
 		SetCurrentCursorPos(62, 0);
@@ -1499,8 +1554,8 @@ int main(void)
 
 
 		SetCurrentCursorPos(62, 7);
-		printf("checktome %d", ObTime);
-
+		printf("checktome %d",ObTime);
+		
 
 
 
@@ -1532,11 +1587,11 @@ int main(void)
 			DrawSk();*/
 		}
 
-		if (changeMap_Normal == true && changeMap_Boss == false && ObTime == 50)
+		if (changeMap_Normal == true && changeMap_Boss == false && ObTime == 5)
 		{
 			clear_N = true;
 			DrawClear_N();
-			/*isN_clear();*/
+			//isN_clear();
 		}//50번째 줄일 때 클리어(일반)
 
 
@@ -1544,7 +1599,7 @@ int main(void)
 		{
 			ShootLaser();//레이저를 쏘는 함수 (Draw & Delete)
 			B_time++;//보스맵 경과 시간 증가시키기
-
+			
 
 					 //	ba = true;//랭크 테스트용
 					 //	Physical_Boss(10);//랭크 테스트용
