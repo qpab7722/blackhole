@@ -135,7 +135,7 @@ void DeleteOb()
 		for (x = 0; x<25; x++)
 		{
 			SetCurrentCursorPos((x * 2), y);
-			if (GBInfo_N[y][x] != 0 && GBInfo_N[y][x] != 1)
+			if (GBInfo_N[y][x] != 0 )
 				printf(" ");
 			if (changeMap_Normal == false && changeMap_Boss)//일반맵 아니고, 보스맵일때 장애물 지워줌
 				printf(" ");
@@ -761,97 +761,9 @@ void deleteGB_N() //일반맵 지우는 함수
 
 }
 
-void DrawAllMap()	//모든 맵을 그리는 함수 - 스위치의 변화에 따른 변화까지 그려줌
-{
-	int x, y;
-	int reversetime = 30;
-
-	if (Switch_N && changeMap_Normal)//일반맵에서 스위치를 건들였을때
-	{
-
-		if (check_N == 0)//스위치 처음 눌렀을때 지우자
-		{
-			int tempx = PC_pos.X;
-			int tempy = PC_pos.Y;
-			deleteGB_N();
-			MT_pos.X == 28;
-			MT_pos.Y == 15;
-			PC_pos.X = tempy * 2 - 1;
-			PC_pos.Y = tempx / 2 + 1;
-		}
-		check_N++;
-		if (check_N == reversetime)//10번 뒤에 다시 돌림
-		{
-			int tempx = PC_pos.X;
-			int tempy = PC_pos.Y;
-			deleteGB_N();
-			starttime = 0;
-			check_N = 0;
-			Switch_N = false;
-			MT_pos.X == 15;
-			MT_pos.Y == 24;
-			PC_pos.X = tempy * 2;
-			PC_pos.Y = tempx / 2 - 1;
-		}
-	}
-
-	if (changeMap_Boss)	//보스맵 그리기
-	{
-		if (check_B == 0)//스위치 처음 눌렀을때 지우자
-		{
-			DeleteOb();
-		}
-
-		check_B++;
-
-		SetCurrentCursorPos(62, 10);
-		printf("map: %3d", Switch_B % 4);
-
-		if ((Switch_B % 4) == 0)//보스맵 모델 4개중에 0번째 모델 그리기
-			drawGB_B(GBInfo_B[0]);
-		else
-			Rotate_BossMap();
-	}
-	else if (changeMap_Normal) 	//일반맵 그리기
-	{
-
-		for (int y = 0; y < GBOARD_HEIGHT; y++)
-		{
-			GBInfo_N[y][0] = 2;
-			GBInfo_N[y][GBOARD_WIDTH - 1] = 2;
-
-		}
 
 
-		for (y = 0; y < 29; y++)
-		{
-			for (x = 0; x < 25; x++)
-			{
-				if (Switch_N)
-				{
-					SetCurrentCursorPos((y * 2), x);
-				}
-				else
-					SetCurrentCursorPos((x * 2), y);
 
-				if (GBInfo_N[y][x] == 1)
-					printf("▲");
-				if (GBInfo_N[y][x] == 2)
-					printf("■");
-				if (GBInfo_N[y][x] == 3)
-					printf("★");
-				if (GBInfo_N[y][x] == 5)
-					printf("ⓒ");
-				else
-					printf("　");
-
-			}
-
-		}
-	}
-
-
-}
 
 void UpOB()	//돌출 지형을 일정 간격마다 위로 올려주는 함수 
 {
@@ -913,31 +825,7 @@ void DeleteMT(char MeteoInfo[4][4])
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
 
-int Shoot_MT() //showMT의 역활 메테오 움직여주는 것
-{
-	if (changeMap_Boss == false && clear_N == false)
-	{
-		COORD curPos = GetCurrentCursorPos();
 
-		if (MT_pos.Y == 0) {
-
-			return 0;
-		} //y가 1일때 메테오를 다시 아래부터 그려주기
-
-		if (DetectCollision_Meteo(curPos.X, curPos.Y + 1, MeteoInfo[0]) == 0)
-		{
-			//DeleteOb(GBInfo_N[0]);
-			DrawAllMap();
-		}
-
-		MT_pos.Y -= 2;
-		SetCurrentCursorPos(MT_pos.X, MT_pos.Y);
-		DrawMT(MeteoInfo[0]);
-
-		return 1;
-
-	}
-}
 
 
 
@@ -1092,58 +980,7 @@ void isN_clear()//클리어(일반)
 
 }
 
-void DrawPassword()	//끈끈이(암호만듦)
-{
-	if (checkStage == 1)
-		PW_size = 1;
 
-	Password = (int*)malloc(sizeof(int)*PW_size);
-
-	int word = 0;
-
-	int i = 0;
-	while(i<PW_size)
-	{
-		int W = rand() % 5;
-
-
-		if (W == 0)
-			word == LEFT;
-		if (W == 1)
-			word == RIGHT;
-		if (W == 2)
-			word == UP;
-		if (W == 3)
-			word == DOWN;
-		if (W == 4)
-			word == SPACE;
-
-
-		*(Password + i) = word;
-
-		i++;
-	}
-
-}
-
-void DeletePassword()	//끈끈이(암호해제)
-{
-	int i = 0;
-	while(i<PW_size)
-	{
-		while (1)
-		{
-
-			if (*(Password + i) == InputWord)
-				break;
-
-		}
-
-
-		i++;
-	}
-
-}
 
 int isCrash(int posX, int posY, char PCInfo[4][4], char GBInfo_B[B_GBOARD_HEIGHT][B_GBOARD_WIDTH])	//충돌 함수
 {
@@ -1177,7 +1014,9 @@ int isCrash(int posX, int posY, char PCInfo[4][4], char GBInfo_B[B_GBOARD_HEIGHT
 
 				if (GBInfo_N[arrY + y][arrX + x] == 4)	//끈끈이
 				{
-					sticky == true;
+					sticky = true;
+					//DrawPassword();	//암호 생성
+					//DeletePassword();	//암호 해제
 
 				}
 				if (GBInfo_N[arrY + y][arrX + x] == 3)	//일반맵 스위치
@@ -1398,7 +1237,6 @@ int Gravity_N()
 	return 1;
 }
 
-
 void ProcessKeyInput()
 {
 	int key;
@@ -1459,6 +1297,192 @@ void ProcessKeyInput()
 		}
 		Sleep(speed);
 	}
+}
+
+
+void DrawPassword()	//끈끈이(암호만듦)
+{
+	//Stage에 따라서 암호길이 조정
+	if (checkStage == 1)
+		PW_size = 1;
+	if (checkStage == 2)
+		PW_size = 3;
+	if (checkStage == 3)
+		PW_size = 5;
+	if (checkStage == 4)
+		PW_size = 7;
+
+	Password = (int*)malloc(sizeof(int)*PW_size);	//Password(암호배열)를 PW_size만큼 만듦
+
+	srand(time(NULL));
+
+	int word = 0;	//암호값
+
+	for (int i = 0; i< PW_size; i++)
+	{
+		int W = rand() % 5;	//암호 뽑음
+
+		if (W == 0)
+			word = LEFT;
+		if (W == 1)
+			word = RIGHT;
+		if (W == 2)
+			word = UP;
+		if (W == 3)
+			word = DOWN;
+		if (W == 4)
+			word = SPACE;
+
+		*(Password + i) = word;	//암호값을 Password(암호배열)에 넣음
+
+	}
+
+}
+
+void DeletePassword()	//끈끈이(암호해제)
+{
+	int i = 0;
+	int j = 0;
+
+	while (i<PW_size)
+	{	
+		SetCurrentCursorPos(20, 19);
+		printf("%3d", ++j);	//몇번째 키보드인지 알기 위해서
+		SetCurrentCursorPos(20, 20);
+		printf("                                             ");	//이전 키보드 입력 출력 지우기
+
+		SetCurrentCursorPos(20, 20);
+		if (*(Password + i) == LEFT)
+			printf("Left←  ");
+		if (*(Password + i) == RIGHT)
+			printf("Right→  ");
+		if (*(Password + i) == UP)
+			printf("Up↑  ");
+		if (*(Password + i) == DOWN)
+			printf("Down↓  ");
+		if (*(Password + i) == SPACE)
+			printf("Space bar  ");
+
+		while (1)	//같은 값을 입력할때까지 무한루프
+		{
+			InputWord = 0;	//키보드값 초기화
+
+			ProcessKeyInput();
+
+			if (*(Password + i) == InputWord)
+				break;
+		}
+
+		i++;
+	}
+
+	free(Password);	//Password 해제
+	printf("Good!");
+	sticky = false;
+}
+
+void DrawAllMap()	//모든 맵을 그리는 함수 - 스위치의 변화에 따른 변화까지 그려줌
+{
+	int x, y;
+	int reversetime = 30;
+
+	if (Switch_N && changeMap_Normal)//일반맵에서 스위치를 건들였을때
+	{
+
+		if (check_N == 0)//스위치 처음 눌렀을때 지우자
+		{
+			int tempx = PC_pos.X;
+			int tempy = PC_pos.Y;
+			deleteGB_N();
+			MT_pos.X == 28;
+			MT_pos.Y == 15;
+			PC_pos.X = tempy * 2 - 1;
+			PC_pos.Y = tempx / 2 + 1;
+		}
+		check_N++;
+		if (check_N == reversetime)//10번 뒤에 다시 돌림
+		{
+			int tempx = PC_pos.X;
+			int tempy = PC_pos.Y;
+			deleteGB_N();
+			starttime = 0;
+			check_N = 0;
+			Switch_N = false;
+			MT_pos.X == 15;
+			MT_pos.Y == 24;
+			PC_pos.X = tempy * 2;
+			PC_pos.Y = tempx / 2 - 1;
+		}
+
+	}
+
+	if (changeMap_Boss)	//보스맵 그리기
+	{
+		if (check_B == 0)//스위치 처음 눌렀을때 지우자
+		{
+			DeleteOb();
+		}
+
+		check_B++;
+
+		SetCurrentCursorPos(62, 10);
+		printf("map: %3d", Switch_B % 4);
+
+		if ((Switch_B % 4) == 0)//보스맵 모델 4개중에 0번째 모델 그리기
+			drawGB_B(GBInfo_B[0]);
+		else
+			Rotate_BossMap();
+	}
+	else if (changeMap_Normal) 	//일반맵 그리기
+	{
+
+		if (sticky)	//끈끈이 일때
+		{
+			deleteGB_N();	//지우자
+			DeleteOb();
+			deletePC(PCInfo[0]);
+
+			DrawPassword();
+			DeletePassword();
+
+
+		}
+		else
+		{
+			for (int y = 0; y < GBOARD_HEIGHT; y++)
+			{
+				GBInfo_N[y][0] = 2;
+				GBInfo_N[y][GBOARD_WIDTH - 1] = 2;
+			}
+
+			for (y = 0; y < 29; y++)
+				for (x = 0; x < 25; x++)
+				{
+					if (Switch_N)
+						SetCurrentCursorPos((y * 2), x);
+
+					else
+						SetCurrentCursorPos((x * 2), y);
+
+					if (GBInfo_N[y][x] == 1)
+						printf("▲");
+					if (GBInfo_N[y][x] == 2)
+						printf("■");
+					if (GBInfo_N[y][x] == 3)
+						printf("★");
+					if (GBInfo_N[y][x] == 4)
+						printf("▒");
+					if (GBInfo_N[y][x] == 5)
+						printf("ⓒ");
+					else
+						printf("　");
+
+				}
+
+		}
+
+	}
+
 }
 
 //Laser를 쏘는 함수 (Draw & Delete) 
@@ -1629,7 +1653,31 @@ void ShootLaser()
 }
 
 
+int Shoot_MT() //showMT의 역활 메테오 움직여주는 것
+{
+	if (changeMap_Boss == false && clear_N == false)
+	{
+		COORD curPos = GetCurrentCursorPos();
 
+		if (MT_pos.Y == 0) {
+
+			return 0;
+		} //y가 1일때 메테오를 다시 아래부터 그려주기
+
+		if (DetectCollision_Meteo(curPos.X, curPos.Y + 1, MeteoInfo[0]) == 0)
+		{
+			//DeleteOb(GBInfo_N[0]);
+			DrawAllMap();
+		}
+
+		MT_pos.Y -= 2;
+		SetCurrentCursorPos(MT_pos.X, MT_pos.Y);
+		DrawMT(MeteoInfo[0]);
+
+		return 1;
+
+	}
+}
 
 void DrawClear_N()
 {
@@ -1734,7 +1782,7 @@ int main(void)
 
 			if (ObTime == 5) // 스위치 호출 조건문 ( 임시 )
 			{
-				GBInfo_N[10][3] = 3;
+				GBInfo_N[10][3] = 4;
 			}
 
 			/*if (SkTime % 15 == 0)
