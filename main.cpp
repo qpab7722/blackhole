@@ -36,6 +36,8 @@ int speed = 15;
 int check = 0; // 스위치후 delete
 int PCLife = 30;	//PC의 체력
 
+int move = 0;
+
 int ObTime_o = 0;//올라가는 간격	(장애물과 장애물사이 간격)
 int ObTime_t = 3;//올라가는 간격
 //장애물이 단조로워서 두번 그리게 바꿔봄
@@ -614,8 +616,12 @@ void Rotate_BossMap() //맵 돌려주는 함수
 
 	if ((Switch_B % 4) == 1) // 45도 이동
 	{
-
-		PC_pos.Y = 20;
+		if (move == 0)
+		{
+			PC_pos.Y = 20;
+			move++;
+		}
+			
 
 		for (y = 0; y<B_GBOARD_HEIGHT; y++)
 			for (x = 0; x < B_GBOARD_WIDTH; x++)
@@ -691,6 +697,12 @@ void Rotate_BossMap() //맵 돌려주는 함수
 
 	else if ((Switch_B % 4) == 2) // 90도 이동
 	{
+		if (move == 0)
+		{
+			PC_pos.X = 10;
+			PC_pos.Y = 10;
+			move++;
+		}
 		for (y = 0; y < B_GBOARD_HEIGHT; y++)
 		{
 			for (x = 0; x < B_GBOARD_WIDTH; x++)
@@ -768,7 +780,13 @@ void Rotate_BossMap() //맵 돌려주는 함수
 
 	else if ((Switch_B % 4) == 3) // 135도 이동
 	{
-		PC_pos.Y = 20;
+		if (move == 0)
+		{
+			PC_pos.X = 40;
+			PC_pos.Y = 18;
+			move++;
+		}
+	
 
 		for (y = 0; y<B_GBOARD_HEIGHT; y++)
 			for (x = 0; x < B_GBOARD_WIDTH; x++)
@@ -1272,6 +1290,7 @@ int isCrash(int posX, int posY, char PCInfo[4][4], char GBInfo_B[B_GBOARD_HEIGHT
 				if (GBInfo_B[arrY + y][arrX + x] == 's')	//스위치랑 부딪혔을때
 				{
 					Switch_B++;
+					move = 0;
 					check_B = 0;
 					DeleteStoreBoard();	//임시맵 초기화
 
@@ -1464,6 +1483,7 @@ void ProcessKeyInput()
 				break;
 			case '2': //탭 추가
 				Switch_B++;
+				move = 0;
 				check_B = 0;
 				if (Switch_B % 2 == 0)
 					PC_pos.Y = 20;
@@ -2047,11 +2067,11 @@ int main(void)
 			DrawSk();*/
 		}
 
-		if (changeMap_Normal == true && changeMap_Boss == false && ObTime_o == 20)
+		if (changeMap_Normal == true && changeMap_Boss == false && ObTime_o == 5)
 		{
 			clear_N = true;
 			DrawClear_N();
-			//isN_clear();
+			isN_clear();
 		}//50번째 줄일 때 클리어(일반)
 
 
