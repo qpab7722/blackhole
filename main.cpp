@@ -615,6 +615,8 @@ void Rotate_BossMap() //맵 돌려주는 함수
 	if ((Switch_B % 4) == 1) // 45도 이동
 	{
 
+		PC_pos.Y = 20;
+
 		for (y = 0; y<B_GBOARD_HEIGHT; y++)
 			for (x = 0; x < B_GBOARD_WIDTH; x++)
 			{
@@ -766,6 +768,7 @@ void Rotate_BossMap() //맵 돌려주는 함수
 
 	else if ((Switch_B % 4) == 3) // 135도 이동
 	{
+		PC_pos.Y = 20;
 
 		for (y = 0; y<B_GBOARD_HEIGHT; y++)
 			for (x = 0; x < B_GBOARD_WIDTH; x++)
@@ -922,9 +925,16 @@ void DrawMT(char MeteoInfo[4][4]) {
 			else
 				SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
 			if (MeteoInfo[y][x] == 1)
+			{
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 4);
 				printf("◈");
+			}
+				
 			if (MeteoInfo[y][x] == 2)
+			{
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 4);
 				printf("˚");
+			}
 		}
 	}
 	SetCurrentCursorPos(curPos.X, curPos.Y);
@@ -1140,7 +1150,15 @@ int Physical_Boss(int maxLife)	//체력함수(캐릭터의 최대 체력을 받아서 현재 체력�
 
 void isN_clear()//클리어(일반)
 {
-	SetCurrentCursorPos(30, 10);
+
+	for (int y = 0; y < 30; y++)
+		for (int x = 0; x < 80; x++)
+		{
+			SetCurrentCursorPos(x, y);
+			printf(" ");
+		}
+
+	SetCurrentCursorPos(30, 15);
 	printf("Stage %d 일반맵 클리어", checkStage);	//일단 출력
 	Sleep(1000);
 
@@ -1640,15 +1658,35 @@ void DrawAllMap()	//모든 맵을 그리는 함수 - 스위치의 변화에 따른 변화까지 그려줌
 						SetCurrentCursorPos((x * 2), y);
 
 					if (GBInfo_N[y][x] == 1)
+					{
+						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 8);
 						printf("▲");
+					}
+						
 					if (GBInfo_N[y][x] == 2)
+					{
+						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
 						printf("■");
+					}
+						
 					if (GBInfo_N[y][x] == 3)
+					{
+						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14);
 						printf("★");
+					}
+						
 					if (GBInfo_N[y][x] == 4)
+					{
+						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 2);
 						printf("▒");
+					}
+						
 					if (GBInfo_N[y][x] == 5)
+					{
+						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 13);
 						printf("ⓒ");
+					}
+						
 					else
 						printf("　");
 
@@ -1879,8 +1917,42 @@ void DrawClear_N()
 	GBInfo_N[GBOARD_HEIGHT - 2][12] = 5;//목적지 깃발?
 }
 
+void DrawSwitch_N()
+{
+	if (ObTime_o % 10 == 0)
+	{
+		GBInfo_N[GBOARD_HEIGHT - 2][GBOARD_WIDTH - 2] = 3;
+	}
 
 
+	else if (ObTime_t % 15 == 0)
+	{
+		GBInfo_N[GBOARD_HEIGHT - 2][1] = 3;
+	}
+}
+
+void DrawSk()
+{
+	if (ObTime_t%10 == 0)
+	{
+		GBInfo_N[GBOARD_HEIGHT - 2][1] = 4;
+		GBInfo_N[GBOARD_HEIGHT - 3][1] = 4;
+		GBInfo_N[GBOARD_HEIGHT - 4][1] = 4;
+		GBInfo_N[GBOARD_HEIGHT - 5][1] = 4;
+		GBInfo_N[GBOARD_HEIGHT - 6][1] = 4;
+	}
+	
+
+	else if (ObTime_t % 12 == 0)
+	{
+		GBInfo_N[GBOARD_HEIGHT - 2][GBOARD_WIDTH-2] = 4;
+		GBInfo_N[GBOARD_HEIGHT - 3][GBOARD_WIDTH - 2] = 4;
+		GBInfo_N[GBOARD_HEIGHT - 4][GBOARD_WIDTH - 2] = 4;
+		GBInfo_N[GBOARD_HEIGHT - 5][GBOARD_WIDTH - 2] = 4;
+		GBInfo_N[GBOARD_HEIGHT - 6][GBOARD_WIDTH - 2] = 4;
+	}
+	
+}
 
 int main(void)
 {
@@ -1925,21 +1997,22 @@ int main(void)
 			Gravity_N();
 		ProcessKeyInput();
 
-		SetCurrentCursorPos(62, 0);
-		printf("PC 체력: %3d", Physical_PC(PCLife));
-		SetCurrentCursorPos(62, 1);
-		printf("Boss 체력: %3d", Physical_Boss(BossLife));
 
-		SetCurrentCursorPos(62, 3);
-		printf("PC : %3d, %3d", PC_pos.X, PC_pos.Y);
-		SetCurrentCursorPos(62, 4);
-		printf("Boss : %3d, %3d", Boss_pos.X, Boss_pos.Y);
-		SetCurrentCursorPos(62, 5);
-		printf("MT: %3d, %3d", MT_pos.X, MT_pos.Y);
+			SetCurrentCursorPos(62, 0);
+			printf("PC 체력: %3d", Physical_PC(PCLife));
+			SetCurrentCursorPos(62, 1);
+			printf("Boss 체력: %3d", Physical_Boss(BossLife));
+
+			SetCurrentCursorPos(62, 3);
+			printf("PC : %3d, %3d", PC_pos.X, PC_pos.Y);
+			SetCurrentCursorPos(62, 4);
+			printf("Boss : %3d, %3d", Boss_pos.X, Boss_pos.Y);
+			SetCurrentCursorPos(62, 5);
+			printf("MT: %3d, %3d", MT_pos.X, MT_pos.Y);
 
 
-		SetCurrentCursorPos(62, 7);
-		printf("checktome %d %d", ObTime_o,ObTime_t);
+			SetCurrentCursorPos(62, 7);
+			printf("checktime %d %d", ObTime_o, ObTime_t);
 
 
 
@@ -1966,10 +2039,9 @@ int main(void)
 			if (ObTime_t % 4 == 0)
 				MakeOb_two();
 
-			if (ObTime == 5) // 스위치 호출 조건문 ( 임시 )
-			{
-				GBInfo_N[10][3] = 4;
-			}
+
+				DrawSk();
+				DrawSwitch_N();
 
 			/*if (SkTime % 15 == 0)
 			DrawSk();*/
