@@ -89,6 +89,9 @@ int countPCAttack = 0;	//pc 체력 횟수 변화
 
 int Ro = 0; //보스맵 회전에서 회전 직후 만 딜리트 게임보드 하기 위해서 사용
 int move = 0; //보스맵 회전에서 회전 직후 PC 좌표를 설정하기 위해서 사용
+
+int lefttime = 20;// 일반맵을 깨기 위해 버텨야하는 시간
+
 void RemoveCursor(void)
 {
 	CONSOLE_CURSOR_INFO curInfo;
@@ -347,7 +350,8 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][20], char GBInfo
 	int mindex = -1;
 
 	for (x = 0; x < 20; x++)
-		for (y = 0; y < 5; y++) {
+		for (y = 0; y < 5; y++) 
+		{
 			if (LaserInfo[y][x] == 1)
 			{
 				SetCurrentCursorPos(62, 15);
@@ -359,7 +363,7 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][20], char GBInfo
 					mindex = 0;
 					Mirr_num[mindex] += 1;
 					SetCurrentCursorPos(62, 13);
-					//printf("mirr3 %d  %d", Mirr_num[mindex], Mirr_overheattime[mindex]);
+					printf("mirru %d  %d", Mirr_num[mindex], Mirr_overheattime[mindex]);
 
 					if (Mirr_num[mindex] == 4) Mirr_overheattime[mindex] = B_time;
 					else if (Mirr_num[mindex] > 4)
@@ -382,7 +386,7 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][20], char GBInfo
 					mindex = 1;
 					Mirr_num[mindex] += 1;
 					SetCurrentCursorPos(62, 13);
-					//printf("mirr3 %d  %d", Mirr_num[mindex], Mirr_overheattime[mindex]);
+					printf("mirri %d  %d", Mirr_num[mindex], Mirr_overheattime[mindex]);
 
 					if (Mirr_num[mindex] == 4) Mirr_overheattime[mindex] = B_time;
 					else if (Mirr_num[mindex] > 4)
@@ -405,7 +409,7 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][20], char GBInfo
 					mindex = 2;
 					Mirr_num[mindex] += 1;
 					SetCurrentCursorPos(62, 13);
-					//printf("mirr3 %d  %d", Mirr_num[mindex], Mirr_overheattime[mindex]);
+					printf("mirro %d  %d", Mirr_num[mindex], Mirr_overheattime[mindex]);
 
 					if (Mirr_num[mindex] == 4) Mirr_overheattime[mindex] = B_time;
 					else if (Mirr_num[mindex] > 4)
@@ -429,7 +433,7 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][20], char GBInfo
 					mindex = 3;
 					Mirr_num[mindex] += 1;
 					SetCurrentCursorPos(62, 13);
-					//printf("mirr3 %d  %d", Mirr_num[mindex], Mirr_overheattime[mindex]);
+					printf("mirrp %d  %d", Mirr_num[mindex], Mirr_overheattime[mindex]);
 
 					if (Mirr_num[mindex] == 4) Mirr_overheattime[mindex] = B_time;
 					else if (Mirr_num[mindex] > 4)
@@ -447,6 +451,8 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][20], char GBInfo
 					}
 					return 1;
 					break;
+				default:
+					break;
 
 				}
 
@@ -456,6 +462,9 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][20], char GBInfo
 	for (int nm = 0; nm < 4; nm++)
 	{
 		mindex = nm;
+		SetCurrentCursorPos(62, 19+nm);
+		printf("mirr %d %d  %d\n",nm, Mirr_num[mindex], Mirr_overheattime[mindex]);
+		
 		if (Mirr_overheattime[mindex] > 0 && B_time - Mirr_overheattime[mindex] > nonotime)//10초간 과열 후 초기화
 		{
 			Mirr_overheattime[mindex] = -1;
@@ -1113,13 +1122,25 @@ void isB_Clear()//클리어(보스)
 
 		//보스체력
 		if (checkStage == 1)
+		{
 			BossLife = 1;
+			lefttime = 1 * 20;
+		}		
 		if (checkStage == 2)
+		{
 			BossLife = 2;
+			lefttime = 2 * 20;
+		}
 		if (checkStage == 3)
+		{
 			BossLife = 3;
+			lefttime = 3 * 20;
+		}
 		if (checkStage == 4)
+		{
 			BossLife = 4;
+			lefttime = 4 * 20;
+		}
 
 
 		changeMap_Boss = false;	//보스맵 끄기
@@ -1132,6 +1153,15 @@ void isB_Clear()//클리어(보스)
 		ObTime_t = 0;
 		clear_N = false;
 		Switch_B = 0;
+		for (int i = 0; i < 4; i++)
+		{
+			Mirr_num[i] =  0 ;//미러에 누적된 횟수 변수
+			Mirr_overheattime[i] = -1 ;//과열 상태가 시작된 시간을 체크하는 변수
+			overheat[i] = false;
+		}
+		B_time = 0;//보스맵입장한지 몇분짼지
+
+		
 
 		DeleteStage();
 
@@ -1324,6 +1354,14 @@ void isN_clear()//클리어(일반)
 	PC_pos.Y = 20;//PC위치 옮겨줌
 
 	Physical_Boss(BossLife);	// 탄마다 보스 체력 다르게 해줌
+
+	for (int i = 0; i < 4; i++)
+	{
+		Mirr_num[i] = 0;//미러에 누적된 횟수 변수
+		Mirr_overheattime[i] = -1;//과열 상태가 시작된 시간을 체크하는 변수
+	}
+	B_time = 0;//보스맵입장한지 몇분짼지
+//	reflect = false;
 
 }
 
@@ -2202,7 +2240,7 @@ void printstory()
 int main(void)
 {
 
-	printstory();
+	//printstory();
 	srand((unsigned int)time(NULL));
 	L = (rand() % 4) + 1;	//레이저 모델 선택
 
@@ -2286,21 +2324,28 @@ int main(void)
 			/*if (SkTime % 15 == 0)
 			DrawSk();*/
 		}
-		int nnnn=20;
-		if (checkStage == 1)
-			nnnn = 20;
+		if (changeMap_Normal == true)
+		{
+			SetCurrentCursorPos(62, 3);
+			if (lefttime - ObTime_o < 0)
+				printf("깃발에 도착하세요!", lefttime - ObTime_o);
+			else
+				printf("남은시간 : %d     ", lefttime - ObTime_o);
+		}
 		else
-			nnnn = 50;
-		
+		{
+			SetCurrentCursorPos(62, 3);
+			printf("           ", lefttime - ObTime_o);
+		}
 
-		if (changeMap_Normal == true && changeMap_Boss == false && ObTime_o == nnnn)
+		if (changeMap_Normal == true && changeMap_Boss == false && ObTime_o == lefttime)
 		{
 			clear_N = true;
 			DrawClear_N();
 
 			//isN_clear();
 		}//50번째 줄일 때 클리어(일반)
-
+		
 
 		if (changeMap_Normal == false && changeMap_Boss == true && check_B>0)	//레이저를 쏘쟛	//check_B는 보스맵을 다 그리고서 레이저를 쏘려고
 		{
