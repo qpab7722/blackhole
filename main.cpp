@@ -34,7 +34,7 @@ int GBInfo_N[GBOARD_HEIGHT][GBOARD_WIDTH];
 int speed_laser = 30;
 int speed = 15;
 int check = 0; // 스위치후 delete
-int PCLife = 30;	//PC의 체력
+int PCLife = 50;	//PC의 체력
 
 int ObTime_o = 0;//올라가는 간격	(장애물과 장애물사이 간격)
 int ObTime_t = 3;//올라가는 간격
@@ -58,7 +58,7 @@ bool attacked_Boss = false;	//보스에게 공격 받았는지 알려주는 변수
 
 int L;//레이저 모델 번호
 bool reflect = false;//반사체크 변수
-int BossLife = 1;//보스의 체력
+int BossLife = 5;//보스의 체력
 
 int checkStage = 1;	//현재 Stage
 
@@ -165,12 +165,7 @@ void DeleteLaser_B(char GBInfo_B[31][31])
 			{
 				printf(" ");
 			}
-
-
-
 		}
-
-
 
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
@@ -242,8 +237,6 @@ void DeleteStoreBoard()
 		for (int i = 0; i<B_GBOARD_HEIGHT; i++)
 			for (int j = 0; j<B_GBOARD_WIDTH; j++)
 				StoreBoard[i][j] = 0;	//임시 게임판을 지움
-
-
 }
 
 //임시 게임판에 레이저 지우는 함수
@@ -1113,13 +1106,13 @@ void isB_Clear()//클리어(보스)
 
 		//보스체력
 		if (checkStage == 1)
-			BossLife = 1;
+			BossLife = 5;
 		if (checkStage == 2)
-			BossLife = 2;
+			BossLife = 10;
 		if (checkStage == 3)
-			BossLife = 3;
+			BossLife = 15;
 		if (checkStage == 4)
-			BossLife = 4;
+			BossLife = 20;
 
 
 		changeMap_Boss = false;	//보스맵 끄기
@@ -2240,21 +2233,8 @@ int main(void)
 		SetCurrentCursorPos(62, 0);
 		printf("PC 체력: %3d", Physical_PC(PCLife));
 		SetCurrentCursorPos(62, 1);
-		printf("Boss 체력: %3d", Physical_Boss(BossLife));
-
-
-		//SetCurrentCursorPos(62, 3);
-		//printf("PC : %3d, %3d", PC_pos.X, PC_pos.Y);
-		SetCurrentCursorPos(62, 4);
-		//printf("Boss : %3d, %3d", Boss_pos.X, Boss_pos.Y);
-		//SetCurrentCursorPos(62, 5);
-		//printf("MT: %3d, %3d", MT_pos.X, MT_pos.Y);
-
-
-		//SetCurrentCursorPos(62, 7);
-		//printf("checktime %d %d", ObTime_o, ObTime_t);
-
-
+		if(changeMap_Boss)
+			printf("Boss 체력: %3d", Physical_Boss(BossLife));
 
 
 		SetCurrentCursorPos(MT_pos.X, MT_pos.Y);
@@ -2286,19 +2266,18 @@ int main(void)
 			/*if (SkTime % 15 == 0)
 			DrawSk();*/
 		}
-		int nnnn=20;
+		int nnnn = 20;	//일반맵 클리어 줄수 
 		if (checkStage == 1)
 			nnnn = 20;
 		else
 			nnnn = 50;
-		
+
 
 		if (changeMap_Normal == true && changeMap_Boss == false && ObTime_o == nnnn)
 		{
 			clear_N = true;
 			DrawClear_N();
 
-			//isN_clear();
 		}//50번째 줄일 때 클리어(일반)
 
 
@@ -2307,12 +2286,11 @@ int main(void)
 			ShootLaser();//레이저를 쏘는 함수 (Draw & Delete)
 
 			B_time++;//보스맵 경과 시간 증가시키기
-
-
 		}
 
 		SetCurrentCursorPos(62, 12);
-		printf("Boss time %3d", B_time);
+		if (changeMap_Boss)
+			printf("Boss time %3d", B_time);
 		//Sleep(200);
 	}
 
