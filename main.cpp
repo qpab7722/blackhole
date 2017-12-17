@@ -58,7 +58,7 @@ bool attacked_Boss = false;	//보스에게 공격 받았는지 알려주는 변수
 
 int L;//레이저 모델 번호
 bool reflect = false;//반사체크 변수
-int BossLife =1;//보스의 체력
+int BossLife = 1;//보스의 체력
 
 int checkStage = 1;	//현재 Stage
 
@@ -89,6 +89,9 @@ int countPCAttack = 0;	//pc 체력 횟수 변화
 
 int Ro = 0; //보스맵 회전에서 회전 직후 만 딜리트 게임보드 하기 위해서 사용
 int move = 0; //보스맵 회전에서 회전 직후 PC 좌표를 설정하기 위해서 사용
+
+int lefttime = 20;// 일반맵을 깨기 위해 버텨야하는 시간
+
 void RemoveCursor(void)
 {
 	CONSOLE_CURSOR_INFO curInfo;
@@ -134,7 +137,46 @@ int DetectCollision_Meteo(int posX, int posY, char MeteoInfo[4][4])	//맵 랜덤으�
 }
 
 
+void DeleteLaser_B(char GBInfo_B[31][31])
+{
+	//15//14
 
+	COORD curPos = GetCurrentCursorPos();
+
+	//왼쪽
+	for (int y = 16; y<B_GBOARD_HEIGHT; y++)
+		for (int x = 0; x < y - 16; x++)
+		{
+			SetCurrentCursorPos((x * 2), y);
+
+			if (GBInfo_B[y][x] == 0)
+			{
+				printf(" ");
+			}
+
+		}
+
+	SetCurrentCursorPos(curPos.X, curPos.Y);
+
+	//오른쪽
+	for (int y = 16; y<B_GBOARD_HEIGHT; y++)
+		for (int x = 46 - y; x<B_GBOARD_WIDTH; x++)
+		{
+			SetCurrentCursorPos((x * 2), y);
+
+			if (GBInfo_B[y][x] == 0)
+			{
+				printf(" ");
+			}
+
+
+
+		}
+
+
+
+	SetCurrentCursorPos(curPos.X, curPos.Y);
+}
 
 void DeleteOb()
 {
@@ -308,11 +350,12 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][20], char GBInfo
 	int mindex = -1;
 
 	for (x = 0; x < 20; x++)
-		for (y = 0; y < 5; y++) {
+		for (y = 0; y < 5; y++) 
+		{
 			if (LaserInfo[y][x] == 1)
 			{
 				SetCurrentCursorPos(62, 15);
-				printf("충돌");
+				//printf("충돌");
 				switch (GBInfo_B[arrY + y][arrX + x])
 				{
 					//1
@@ -320,7 +363,7 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][20], char GBInfo
 					mindex = 0;
 					Mirr_num[mindex] += 1;
 					SetCurrentCursorPos(62, 13);
-					printf("mirr3 %d  %d", Mirr_num[mindex], Mirr_overheattime[mindex]);
+					printf("mirru %d  %d", Mirr_num[mindex], Mirr_overheattime[mindex]);
 
 					if (Mirr_num[mindex] == 4) Mirr_overheattime[mindex] = B_time;
 					else if (Mirr_num[mindex] > 4)
@@ -343,7 +386,7 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][20], char GBInfo
 					mindex = 1;
 					Mirr_num[mindex] += 1;
 					SetCurrentCursorPos(62, 13);
-					printf("mirr3 %d  %d", Mirr_num[mindex], Mirr_overheattime[mindex]);
+					printf("mirri %d  %d", Mirr_num[mindex], Mirr_overheattime[mindex]);
 
 					if (Mirr_num[mindex] == 4) Mirr_overheattime[mindex] = B_time;
 					else if (Mirr_num[mindex] > 4)
@@ -366,7 +409,7 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][20], char GBInfo
 					mindex = 2;
 					Mirr_num[mindex] += 1;
 					SetCurrentCursorPos(62, 13);
-					printf("mirr3 %d  %d", Mirr_num[mindex], Mirr_overheattime[mindex]);
+					printf("mirro %d  %d", Mirr_num[mindex], Mirr_overheattime[mindex]);
 
 					if (Mirr_num[mindex] == 4) Mirr_overheattime[mindex] = B_time;
 					else if (Mirr_num[mindex] > 4)
@@ -390,7 +433,7 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][20], char GBInfo
 					mindex = 3;
 					Mirr_num[mindex] += 1;
 					SetCurrentCursorPos(62, 13);
-					printf("mirr3 %d  %d", Mirr_num[mindex], Mirr_overheattime[mindex]);
+					printf("mirrp %d  %d", Mirr_num[mindex], Mirr_overheattime[mindex]);
 
 					if (Mirr_num[mindex] == 4) Mirr_overheattime[mindex] = B_time;
 					else if (Mirr_num[mindex] > 4)
@@ -408,12 +451,28 @@ int DetectCollision_Laser(int posX, int posY, char LaserInfo[5][20], char GBInfo
 					}
 					return 1;
 					break;
+				default:
+					break;
 
 				}
 
 			}
 		}
 
+	for (int nm = 0; nm < 4; nm++)
+	{
+		mindex = nm;
+		SetCurrentCursorPos(62, 19+nm);
+		printf("mirr %d %d  %d\n",nm, Mirr_num[mindex], Mirr_overheattime[mindex]);
+		
+		if (Mirr_overheattime[mindex] > 0 && B_time - Mirr_overheattime[mindex] > nonotime)//10초간 과열 후 초기화
+		{
+			Mirr_overheattime[mindex] = -1;
+			Mirr_num[mindex] = 0;
+			overheat[mindex] = false;
+			return 1;
+		}
+	}
 	return 0;
 
 }
@@ -884,9 +943,9 @@ void Rotate_BossMap() //맵 돌려주는 함수
 void deleteGB_N() //일반맵 지우는 함수
 {
 
-	for (int y = 0; y < GBOARD_HEIGHT; y++)
+	for (int y = 0; y < 31; y++)
 	{
-		for (int x = 0; x < GBOARD_WIDTH; x++)
+		for (int x = 0; x < 31; x++)
 		{
 			SetCurrentCursorPos((x * 2), y);
 
@@ -932,7 +991,16 @@ void MakeOb_one()	//돌출 지형을 GBInfo_N에 생성해주는 함수
 {
 	srand((unsigned int)time(NULL));
 	Check_Ob = (rand() % 10); // 1~23    
-	Ran = (rand() % 8) + 4;
+
+	if (checkStage == 1)
+	{
+		Ran = (rand() % 3) + 4;
+	}
+		
+	else if (checkStage != 1)
+	{
+		Ran = (rand() % 8) + 4;
+	}
 
 	for (int x = Check_Ob; x < Check_Ob + Ran; x++)
 		GBInfo_N[27][x] = 1;
@@ -941,8 +1009,17 @@ void MakeOb_one()	//돌출 지형을 GBInfo_N에 생성해주는 함수
 void MakeOb_two()	//돌출 지형을 GBInfo_N에 생성해주는 함수 
 {
 	srand((unsigned int)time(NULL));
-	Check_Ob = (rand() % 20) + 10; // 1~23    
-	Ran = (rand() % 8) + 4;
+	Check_Ob = (rand() % 20) + 10; // 1~23   
+
+	if (checkStage == 1)
+	{	
+		Ran = (rand() % 3) + 4;
+	}
+
+	else if (checkStage != 1)
+	{
+		Ran = (rand() % 8) + 4;
+	}
 
 	for (int x = Check_Ob; x < Check_Ob + Ran; x++)
 		GBInfo_N[27][x] = 1;
@@ -972,6 +1049,7 @@ void DrawMT(char MeteoInfo[4][4]) {
 			}
 		}
 	}
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
 	SetCurrentCursorPos(curPos.X, curPos.Y);
 }
 
@@ -1003,7 +1081,7 @@ void DrawGame(char Game[6][24])
 		for (x = 0; x < 24; x++)
 		{
 			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
-			if( Game[y][x] == 1)
+			if (Game[y][x] == 1)
 			{
 				printf("■");
 
@@ -1018,7 +1096,7 @@ void isB_Clear()//클리어(보스)
 {
 	SetCurrentCursorPos(30, 10);
 	printf("Stage %d 보스맵 클리어", checkStage);	//일단 출력
-	
+
 	Sleep(1000);
 
 	if (checkStage == 4)	//4탄 클리어
@@ -1040,7 +1118,7 @@ void isB_Clear()//클리어(보스)
 		DrawGame(Game[1]);//game
 		Sleep(2000);
 		exit(0);
-		
+
 	}
 
 	else
@@ -1062,13 +1140,25 @@ void isB_Clear()//클리어(보스)
 
 		//보스체력
 		if (checkStage == 1)
-			BossLife = 10;
+		{
+			BossLife = 1;
+			lefttime = 1 * 20;
+		}		
 		if (checkStage == 2)
-			BossLife = 20;
+		{
+			BossLife = 2;
+			lefttime = 2 * 20;
+		}
 		if (checkStage == 3)
-			BossLife = 30;
+		{
+			BossLife = 3;
+			lefttime = 3 * 20;
+		}
 		if (checkStage == 4)
-			BossLife = 40;
+		{
+			BossLife = 4;
+			lefttime = 4 * 20;
+		}
 
 
 		changeMap_Boss = false;	//보스맵 끄기
@@ -1080,9 +1170,19 @@ void isB_Clear()//클리어(보스)
 		ObTime_o = 0;
 		ObTime_t = 0;
 		clear_N = false;
+		Switch_B = 0;
+		for (int i = 0; i < 4; i++)
+		{
+			Mirr_num[i] =  0 ;//미러에 누적된 횟수 변수
+			Mirr_overheattime[i] = -1 ;//과열 상태가 시작된 시간을 체크하는 변수
+			overheat[i] = false;
+		}
+		B_time = 0;//보스맵입장한지 몇분짼지
+
+		
 
 		DeleteStage();
-		
+
 
 	}
 
@@ -1106,7 +1206,7 @@ int Physical_PC(int maxLife)	//체력함수(캐릭터의 최대 체력을 받아서 현재 체력을 
 		Sleep(10);
 		SetCurrentCursorPos(10, 20);
 		DrawGame(Game[2]);//over
-		
+
 		Sleep(1000);
 		getchar();
 		exit(0);
@@ -1116,14 +1216,14 @@ int Physical_PC(int maxLife)	//체력함수(캐릭터의 최대 체력을 받아서 현재 체력을 
 		nowLife -= 2;
 		countPCAttack += 2;
 	}
-		
+
 
 	else if (attacked && attacked_Boss == false)	//아팠을때
 	{
 		nowLife--;
 		countPCAttack++;
 	}
-		
+
 	attacked_Boss = false;
 	attacked = false;	//다시 attacked을 false (원상태)로 돌려준다.
 	return nowLife;	//현재 체력을 리턴한다.
@@ -1267,10 +1367,19 @@ void isN_clear()//클리어(일반)
 	check_B = 0;//콘솔창 한번 지워주기 위해서 
 	deleteGB_B();	//stage 글자 안지워져서 지우려고 
 	changeMap_Normal = false;//일반맵 아님
+	Switch_N = false;
 	changeMap_Boss = true;//보스맵 맞음
 	PC_pos.Y = 20;//PC위치 옮겨줌
 
 	Physical_Boss(BossLife);	// 탄마다 보스 체력 다르게 해줌
+
+	for (int i = 0; i < 4; i++)
+	{
+		Mirr_num[i] = 0;//미러에 누적된 횟수 변수
+		Mirr_overheattime[i] = -1;//과열 상태가 시작된 시간을 체크하는 변수
+	}
+	B_time = 0;//보스맵입장한지 몇분짼지
+//	reflect = false;
 
 }
 
@@ -1318,8 +1427,8 @@ int isCrash(int posX, int posY, char PCInfo[4][4], char GBInfo_B[B_GBOARD_HEIGHT
 					Switch_N = true;
 					deletePC(PCInfo);
 					//PC_pos.Y = 13;
-					MT_pos.X = 28;
-					MT_pos.Y = 3;
+					MT_pos.X = 13;
+					//MT_pos.Y = 3;
 					return 0;
 				}
 
@@ -1340,7 +1449,7 @@ int isCrash(int posX, int posY, char PCInfo[4][4], char GBInfo_B[B_GBOARD_HEIGHT
 				if (GBInfo_N[arrY + y + 1][arrX + x - 1] == 2)	//벽이랑 부딪혔을때
 					return 0;
 
-				if (GBInfo_N[arrY + y + 1][arrX + x ] == 1)	//장애물이랑 부딪혔을때
+				if (GBInfo_N[arrY + y + 1][arrX + x] == 1)	//장애물이랑 부딪혔을때
 				{
 					attacked = true;
 					return 0;
@@ -1500,7 +1609,7 @@ int Gravity_N()
 	if (isCrash(PC_pos.X, PC_pos.Y + 1, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0 && changeMap_Normal == true && changeMap_Boss == false && Switch_N == true)	//부딪힘	//전환맵 아래 벽//스위치 O
 		return 0;
 
-	else if (isCrash(PC_pos.X + 2, PC_pos.Y + 1, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0 && changeMap_Normal == true && changeMap_Boss == false && Switch_N == true)//부딪힘	//전환맵 옆으로 다가오는 벽//스위치 O
+	if (isCrash(PC_pos.X + 2, PC_pos.Y + 1, PCInfo[0], GBInfo_B[Switch_B % 4]) == 0 && changeMap_Normal == true && changeMap_Boss == false && Switch_N == true)//부딪힘	//전환맵 옆으로 다가오는 벽//스위치 O
 	{
 		if (PC_pos.X - 2 > 0)//이동제한
 			PC_pos.X -= 2;
@@ -1598,7 +1707,11 @@ void ProcessKeyInput()
 
 			}
 		}
-		Sleep(speed);
+		if (changeMap_Boss)
+			Sleep(2);
+		else
+			Sleep(speed);
+		//Sleep(speed);
 	}
 }
 
@@ -1712,8 +1825,15 @@ void DrawAllMap()	//모든 맵을 그리는 함수 - 스위치의 변화에 따른 변화까지 그려줌
 			deleteGB_N();
 			MT_pos.X == 28;
 			MT_pos.Y == 15;
-			PC_pos.X = tempy * 2 - 1;
-			PC_pos.Y = tempx / 2 + 1;
+			if (PC_pos.X>40)
+				PC_pos.X = 20;
+			else
+				PC_pos.X = tempy * 2;
+
+			if (PC_pos.Y>15)
+				PC_pos.Y = tempx / 2 + 4;
+			else
+				PC_pos.Y = tempx / 2 - 2;
 		}
 		check_N++;
 
@@ -1730,7 +1850,7 @@ void DrawAllMap()	//모든 맵을 그리는 함수 - 스위치의 변화에 따른 변화까지 그려줌
 			PC_pos.X = tempy * 2;
 			PC_pos.Y = tempx / 2 - 1;
 		}
-		
+
 
 	}
 
@@ -1755,7 +1875,7 @@ void DrawAllMap()	//모든 맵을 그리는 함수 - 스위치의 변화에 따른 변화까지 그려줌
 			}
 			drawGB_B(GBInfo_B[0]);
 		}
-			
+
 
 		else
 		{
@@ -1764,9 +1884,11 @@ void DrawAllMap()	//모든 맵을 그리는 함수 - 스위치의 변화에 따른 변화까지 그려줌
 				deleteGB_B();
 				Ro++;
 			}
+			if (Switch_B % 2 == 1)
+				DeleteLaser_B(GBInfo_B[Switch_B % 4]);
 			Rotate_BossMap();
 		}
-			
+
 
 	}
 	else if (changeMap_Normal) 	//일반맵 그리기
@@ -1949,6 +2071,8 @@ void ShootLaser()
 		len = 15;
 		for (count = 0; count<len; count++)
 		{
+			DeleteLaser_B(GBInfo_B[Switch_B % 4]);
+
 			DrawAllMap();	//맵그리기
 			DeleteStoreLaser();	//레이저 지우기(한줄씩)
 			ProcessKeyInput();
@@ -1963,7 +2087,7 @@ void ShootLaser()
 				DrawBoss(BossInfo[1]);
 			}
 
-			if (count % 2 == 0)
+			if (count % 4 == 0)
 				Gravity_N();
 
 			if (reflect)// 반사레이저 쏘기 
@@ -2063,15 +2187,17 @@ void DrawClear_N()
 
 void DrawSwitch_N()
 {
-	if (ObTime_o % 10 == 0)
+	srand((unsigned int)time(NULL));
+	int Ran_Switch = (rand() % 22) +1 ;
+
+	if (checkStage == 1 && ObTime_o % 10 == 0)
 	{
-		GBInfo_N[GBOARD_HEIGHT - 2][GBOARD_WIDTH - 2] = 3;
+		GBInfo_N[GBOARD_HEIGHT - 2][Ran_Switch] = 3;
 	}
 
-
-	else if (ObTime_t % 15 == 0)
+	else if(checkStage != 1 && ObTime_o % 18 == 0)
 	{
-		GBInfo_N[GBOARD_HEIGHT - 2][1] = 3;
+		GBInfo_N[GBOARD_HEIGHT - 2][Ran_Switch] = 3;
 	}
 }
 
@@ -2082,24 +2208,59 @@ void DrawSk()
 		GBInfo_N[GBOARD_HEIGHT - 2][1] = 4;
 		GBInfo_N[GBOARD_HEIGHT - 3][1] = 4;
 		GBInfo_N[GBOARD_HEIGHT - 4][1] = 4;
-		GBInfo_N[GBOARD_HEIGHT - 5][1] = 4;
-		GBInfo_N[GBOARD_HEIGHT - 6][1] = 4;
+
 	}
 
 
-	else if (ObTime_t % 12 == 0)
+	else if (ObTime_t % 22 == 0)
 	{
 		GBInfo_N[GBOARD_HEIGHT - 2][GBOARD_WIDTH - 2] = 4;
 		GBInfo_N[GBOARD_HEIGHT - 3][GBOARD_WIDTH - 2] = 4;
 		GBInfo_N[GBOARD_HEIGHT - 4][GBOARD_WIDTH - 2] = 4;
-		GBInfo_N[GBOARD_HEIGHT - 5][GBOARD_WIDTH - 2] = 4;
-		GBInfo_N[GBOARD_HEIGHT - 6][GBOARD_WIDTH - 2] = 4;
+
 	}
+
+}
+
+void printstory()
+{
+	SetCurrentCursorPos(2, 10);
+	printf("우주를 탐사하던 주인공,\n");
+	Sleep(1000);
+	SetCurrentCursorPos(2, 11);
+	printf("탐사도중 블랙홀을 만나 우주의 알 수 없는 곳에 고립되고 만다.\n");
+	Sleep(2000);
+	SetCurrentCursorPos(2, 12);
+	printf("이 곳을 벗어나기 위해서는 자신의 우주선을 찾아야 한다!\n");
+	Sleep(2000);
+	SetCurrentCursorPos(2, 13);
+	printf("하지만 이 이상한 공간은 알 수 없는 힘의 법칙이 작용하고, \n");
+	Sleep(1000);
+	SetCurrentCursorPos(2, 14);
+	printf("거대한 존재들이 앞을 가로막고 있다.\n");
+	Sleep(2000);
+	SetCurrentCursorPos(2, 15);
+	printf("주인공은 무사히 우주선에 도달하여 살아남을 수 있을 것인가!!\n");
+	Sleep(2000);
+	SetCurrentCursorPos(2, 20);
+	printf("이곳을 빠져나가고 싶다면 블랙홀에 빨려들어가지 않도록 주의하여라......\n");
+	//Sleep(5000);
+	SetCurrentCursorPos(20, 30);
+	system("PAUSE");
+	for (int is = 0; is<100; is++)
+		for (int js = 0; js < 40; js++)
+		{
+			SetCurrentCursorPos(is, js);
+			printf(" ");
+
+		}
 
 }
 
 int main(void)
 {
+
+	//printstory();
 	srand((unsigned int)time(NULL));
 	L = (rand() % 4) + 1;	//레이저 모델 선택
 
@@ -2116,7 +2277,7 @@ int main(void)
 	DrawStart();
 
 	while (1)
-	{	
+	{
 		if (changeMap_Normal == true && changeMap_Boss == false && clear_N == false)
 		{
 
@@ -2139,16 +2300,17 @@ int main(void)
 		SetCurrentCursorPos(62, 1);
 		printf("Boss 체력: %3d", Physical_Boss(BossLife));
 
-		SetCurrentCursorPos(62, 3);
-		printf("PC : %3d, %3d", PC_pos.X, PC_pos.Y);
+
+		//SetCurrentCursorPos(62, 3);
+		//printf("PC : %3d, %3d", PC_pos.X, PC_pos.Y);
 		SetCurrentCursorPos(62, 4);
-		printf("Boss : %3d, %3d", Boss_pos.X, Boss_pos.Y);
-		SetCurrentCursorPos(62, 5);
-		printf("MT: %3d, %3d", MT_pos.X, MT_pos.Y);
+		//printf("Boss : %3d, %3d", Boss_pos.X, Boss_pos.Y);
+		//SetCurrentCursorPos(62, 5);
+		//printf("MT: %3d, %3d", MT_pos.X, MT_pos.Y);
 
 
-		SetCurrentCursorPos(62, 7);
-		printf("checktime %d %d", ObTime_o, ObTime_t);
+		//SetCurrentCursorPos(62, 7);
+		//printf("checktime %d %d", ObTime_o, ObTime_t);
 
 
 
@@ -2161,7 +2323,7 @@ int main(void)
 		}
 
 		else if (!Shoot_MT() && Switch_N == true) {
-			MT_pos.X = (rand() % 20);
+			MT_pos.X = (rand() % 18) + 2;
 			MT_pos.Y = 26 * 2;
 		}
 
@@ -2182,15 +2344,28 @@ int main(void)
 			/*if (SkTime % 15 == 0)
 			DrawSk();*/
 		}
+		if (changeMap_Normal == true)
+		{
+			SetCurrentCursorPos(62, 3);
+			if (lefttime - ObTime_o < 0)
+				printf("깃발에 도착하세요!", lefttime - ObTime_o);
+			else
+				printf("남은시간 : %d     ", lefttime - ObTime_o);
+		}
+		else
+		{
+			SetCurrentCursorPos(62, 3);
+			printf("           ", lefttime - ObTime_o);
+		}
 
-		if (changeMap_Normal == true && changeMap_Boss == false && ObTime_o == 20)
+		if (changeMap_Normal == true && changeMap_Boss == false && ObTime_o == lefttime)
 		{
 			clear_N = true;
 			DrawClear_N();
 
 			//isN_clear();
 		}//50번째 줄일 때 클리어(일반)
-
+		
 
 		if (changeMap_Normal == false && changeMap_Boss == true && check_B>0)	//레이저를 쏘쟛	//check_B는 보스맵을 다 그리고서 레이저를 쏘려고
 		{
