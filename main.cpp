@@ -1114,6 +1114,16 @@ void isB_Clear()//클리어(보스)
 		if (checkStage == 4)
 			BossLife = 20;
 
+		//pc체력
+		if (checkStage == 1)
+			BossLife = 50;
+		if (checkStage == 2)
+			BossLife = 60;
+		if (checkStage == 3)
+			BossLife = 70;
+		if (checkStage == 4)
+			BossLife = 80;
+
 
 		changeMap_Boss = false;	//보스맵 끄기
 		changeMap_Normal = true;	//일반맵 켜기
@@ -1990,9 +2000,8 @@ void ShootLaser()
 
 			if (count == len - 1)	//초기화
 			{
-				L = (rand() % 4) + 1;
-				//L = (++L % 14);//테스트용
-				//L = (++L % 2);
+				L = (rand() % 14) ;
+				
 			}
 
 			Sleep(speed_laser);
@@ -2067,8 +2076,7 @@ void ShootLaser()
 				reflect = true;
 			if (count == len - 1)	//초기화
 			{
-				L = (rand() % 4) + 1;
-				//L = (++L % 14);//테스트용
+				L = (rand() % 14);
 			}
 			Sleep(speed_laser);
 		}
@@ -2157,6 +2165,53 @@ void DrawSk()
 
 }
 
+void printLogo(char Logo[10][35])
+{
+	int x, y;
+
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+	COORD curPos = GetCurrentCursorPos();
+	for (y = 0; y<10; y++)
+		for (x = 0; x < 35; x++)
+		{
+			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
+			if (Logo[y][x] == 1)
+			{
+				
+				printf("■");
+
+			}
+		}
+
+	SetCurrentCursorPos(curPos.X, curPos.Y);
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+
+}
+
+void deleteLogo(char Logo[10][35])
+{
+	int x, y;
+
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+	COORD curPos = GetCurrentCursorPos();
+	for (y = 0; y<10; y++)
+		for (x = 0; x < 35; x++)
+		{
+			SetCurrentCursorPos(curPos.X + (x * 2), curPos.Y + y);
+			if (Logo[y][x] == 1)
+			{
+
+				printf(" ");
+
+			}
+		}
+
+	SetCurrentCursorPos(curPos.X, curPos.Y);
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+
+}
+
+
 void printstory()
 {
 	SetCurrentCursorPos(2, 10);
@@ -2195,6 +2250,22 @@ void printstory()
 int main(void)
 {
 
+	SetCurrentCursorPos(4, 5);
+	printLogo(Logo[0]);//Black
+	SetCurrentCursorPos(14, 18);
+	printLogo(Logo[1]);//hole
+	SetCurrentCursorPos(14, 36);
+	system("PAUSE");
+
+	SetCurrentCursorPos(4, 5);
+	deleteLogo(Logo[0]);//Black
+	SetCurrentCursorPos(14, 18);
+	deleteLogo(Logo[1]);//hole
+	SetCurrentCursorPos(14, 36);
+	printf("                                                             ");
+
+
+
 	printstory();
 	srand((unsigned int)time(NULL));
 	L = (rand() % 4) + 1;	//레이저 모델 선택
@@ -2215,9 +2286,7 @@ int main(void)
 	{
 		if (changeMap_Normal == true && changeMap_Boss == false && clear_N == false)
 		{
-
 			UpOB();
-
 
 		}
 		DrawAllMap();
@@ -2235,6 +2304,11 @@ int main(void)
 		SetCurrentCursorPos(62, 1);
 		if(changeMap_Boss)
 			printf("Boss 체력: %3d", Physical_Boss(BossLife));
+		else
+			printf("              ");
+
+		SetCurrentCursorPos(62, 4);
+		printf("현재 stage: %d", checkStage);
 
 
 		SetCurrentCursorPos(MT_pos.X, MT_pos.Y);
